@@ -1,18 +1,12 @@
 #include "archiver.h"
 #include "decompressor.h"
 #include "util.h"
-#include "get_test_data.h"
+#include "copy_file_data.h"
 
 #include <assert.h>
 #include <stdbool.h> // to enable bool type
 #include <stdio.h>
 #include <string.h>
-
-// Start a git repo from existing dir <localdir>:
-// cd <localdir>
-// git init
-// git add .
-// git commit -m 'message'
 
 // Convenience enum type to express tool's mode of operation
 typedef enum {
@@ -61,17 +55,17 @@ void usage() {
         "Compressor/decompressor tool. The tool supports 3 modes of execution:    \n"
         "-- normal                                                                \n"
         "  input and output files are specified on the command line along with    \n"
-        "  the operation - compress or decompress:                                \n"
+        "  the archiver working format - compress or decompress:                  \n"
         "    $ arch.exe <op> <input file name> <output file name>                 \n"
         "  where <op> can be                                                      \n"
         "    -compress - compress the input into the output                       \n"
         "    -decompress - decompress the input into the output                   \n"
         "  ** 3 command line arguments are expected                               \n"
         "-- stream                                                                \n"
-        "  input is stdin, output is stdout, the operation is encoded by the first\n"
-        "  line in stdin:                                                         \n"
-        "    c - operation is 'compress'                                          \n"
-        "    d - operation is 'decompress'                                        \n"
+        "  input is stdin, output is stdout, the archiver working format set      \n"
+        "  by the first line in stdin:                                            \n"
+        "    c - 'compress'                                                       \n"
+        "    d - 'decompress'                                                     \n"
         "  the first line must be terminated with '\\n' on Linux or '\\r' '\\n' on\n"
         "  Windows.                                                               \n"
         "    $ cat input.bin | arch.exe > out.bin                                 \n"
@@ -125,11 +119,11 @@ ToolAction read_action(FILE *input) {
     return act;
 }
 
-// read binary data from stdin and write it in the file (for correct fseek() work)
+// read binary data from stdin and write it in the file
 FILE *read_to_file_and_reopen(FILE *input, const char *fname) {
     FILE *output = fopen(fname, "wb");
     if (!output) {
-        fatal_sys_error("can't open %s for writing", fname);
+        fatal_sys_error("can't open %s for writing", fname);    // error checker (forget it)
     }
     char buffer[129];
     const size_t max_len = sizeof(buffer) - 1;
@@ -138,17 +132,17 @@ FILE *read_to_file_and_reopen(FILE *input, const char *fname) {
          n = fread(buffer, 1, max_len, input))
     {
         buffer[n] = '\0';
-        dbg_print_string_hex(9, buffer);
-        dbg(9, "\n");
+        dbg_print_string_hex(9, buffer); // added simple debug (forget it)
+        dbg(9, "\n");             //
         fwrite(buffer, 1, n, output);
     }
     //fclose(input);    // no need to close stdin
     fclose(output);
-    check_errno("error closing %s", fname);
+    check_errno("error closing %s", fname); // error checker (forget it)
     input = fopen(fname, "rb");
 
     if (!input) {
-        fatal_sys_error("can't open %s for reading", fname);
+        fatal_sys_error("can't open %s for reading", fname); // error checker (forget it)
     }
     return input;
 }
@@ -159,6 +153,7 @@ int main(int argc, char *argv[]) {      // argc - size of input argv array
     ToolMode mode = MODE_stream; // default, used if no arguments
     const char *in_file = NULL, *out_file = NULL;
     const char *temp_input_fname = "in_data.tmp";
+    const char *temp_output_fname = "out_data.tmp";
 
     // parse command line arguments
     for (int argno = 1; argno < argc; ++argno) {
@@ -205,7 +200,7 @@ int main(int argc, char *argv[]) {      // argc - size of input argv array
         assert(!out_file && "out_file must be NULL here");
         out_file = arg;
     }
-    // perfom error checking and in_file/out_file initialization
+    // perform error checking and in_file/out_file initialization
     if (mode == MODE_debug && act != ACT_none) {
         error("action can't be specified together with -dbg");
         usage();
@@ -227,8 +222,11 @@ int main(int argc, char *argv[]) {      // argc - size of input argv array
         SET_BINARY_MODE(stdout);    //  set mode on stdout for binary writing
         act = read_action(stdin);
         input = read_to_file_and_reopen(stdin, temp_input_fname);
-        //make_test_data_file(input);
-        output = stdout;
+
+        if (!(output = fopen(temp_output_fname, "wb"))) {
+            ON_EXIT(); // cleanup before exiting
+            fatal_sys_error("can't open %s for writing", temp_output_fname);
+        }
         break;
     case MODE_normal:
         if (!(input = fopen(in_file, "rb"))) {
@@ -255,7 +253,14 @@ int main(int argc, char *argv[]) {      // argc - size of input argv array
     fclose(output);
 
     if (mode == MODE_stream) {
-        remove(temp_input_fname);
+        if (!(output = fopen(temp_output_fname, "rb"))) {
+            fatal_sys_error("can't open %s for reading", temp_output_fname);
+        }
+        copy_data(output, stdout);
+
+        fclose(output);
+        remove(temp_input_fname);   // remove files with stdin and stdout data
+        remove(temp_output_fname);
     }
     return 0;
 }

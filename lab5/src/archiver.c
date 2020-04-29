@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
 Element* insert(Queue *queue, Element *element) {
 
@@ -103,20 +104,36 @@ void get_code(FILE *output, Node *root, char code[257], int level, char *code_li
     }
 }
 
-void tree_write(FILE *output, Node *root, int level) {
+void check_bit(int *bit_pos, int *byte_pos, char *output_buffer) {
+    if (bit_pos[0] > 7) {
+        bit_pos[0] = 0;
+        byte_pos[0] += 1;
+        output_buffer[*byte_pos] = 0;   // null bits in next byte
+    }
+}
+
+void tree_write(FILE *output, Node *root, int level, char *output_buffer, int *byte_pos, int *bit_pos) {
     if (root->left == NULL) {
-        fputc('U', output);
+        bit_pos[0] += 1;
+        check_bit(bit_pos, byte_pos, output_buffer);
+        return;
+    }
+    // equal writing 'L'
+    output_buffer[*byte_pos] |= (1 << *bit_pos);
+    bit_pos[0]++;
+    check_bit(bit_pos, byte_pos, output_buffer);
+    tree_write(output, root->left, level + 1, output_buffer, byte_pos, bit_pos);
+    // equal writing 'R'
+    tree_write(output, root->right, level + 1, output_buffer, byte_pos, bit_pos);
+    // write 'U' after traverse of right subtree
+    if (level > 0) {
+        bit_pos[0]++;
+        check_bit(bit_pos, byte_pos, output_buffer);
     }
     else {
-        fputc('L', output);
-        tree_write(output, root->left, level + 1);
-
-        fputc('R', output);
-        tree_write(output, root->right, level + 1);
-
-        if (level > 0) {
-            fputc('U', output);
-        }
+        assert(level == 0);
+        // write tree traverse in the output file
+        fwrite(output_buffer, 1, *byte_pos + 1, output);
     }
 }
 
@@ -167,8 +184,6 @@ void write_bytes(FILE* input, FILE *output, char *code_list[256]) {
 }
 
 void archive(FILE *input, FILE *output) {
-    FILE *header_file = fopen("../../header_file", "wb");
-
     unsigned char ch = 0;
     int alphabet_size = 0;
     int count;
@@ -192,19 +207,24 @@ void archive(FILE *input, FILE *output) {
         code[0] = '\0';
 
         archive_header header = {0};
-        write_header(header_file, &header);  // TODO: replace with set pos
-        fpos_t start_pos = get_cur_file_pos(header_file);
+        write_header(output, &header);  // TODO: replace with set pos
+        fpos_t start_pos = get_cur_file_pos(output);
         dbg(4, "header start_pos=%llu", start_pos);
         fpos_t cur_pos;
 
-        get_code(header_file, root, code, 0, code_list);
-        cur_pos = get_cur_file_pos(header_file);
+        get_code(output, root, code, 0, code_list);
+        cur_pos = get_cur_file_pos(output);
         dbg(4, "header pos after get_code: %llu", cur_pos);
         header.alphabet_size = (size_t)(cur_pos - start_pos);
         start_pos = cur_pos;
 
-        tree_write(header_file, root, 0);
-        cur_pos = get_cur_file_pos(header_file);
+        char tree_reverse_buffer[500] = {0};
+        tree_reverse_buffer[0] = 0;     // init first buffer byte
+        int byte_pos = 0;
+        int bit_pos = 0;
+        tree_write(output, root, 0, tree_reverse_buffer, &byte_pos, &bit_pos);
+
+        cur_pos = get_cur_file_pos(output);
         dbg(4, "header pos after tree_write: %llu", cur_pos);
         header.tree_size = (size_t)(cur_pos - start_pos);
 
@@ -217,15 +237,14 @@ void archive(FILE *input, FILE *output) {
 
         header.data_size = count;
         // write header
-        fseek(header_file, 0, SEEK_SET);     // move file pointer to the beginning of file
-        write_header(header_file, &header);
+        fseek(output, 0, SEEK_SET);     // move file pointer to the beginning of file
+        write_header(output, &header);
         free_tree(root);
         dbg(1, "header { alph=%zu, tree=%zu, data=%zu }", header.alphabet_size, header.tree_size, header.data_size);
     }
     else {
         archive_header header = {1, 0, count};
-        write_header(header_file, &header);
+        write_header(output, &header);
         fwrite(&ch, 1, 1, output);
     }
-    fclose(header_file);
 }

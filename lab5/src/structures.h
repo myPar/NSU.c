@@ -1,7 +1,5 @@
-#pragma once
 #ifndef LAB_HAFFMAN_STRUCTURES_H
 #define LAB_HAFFMAN_STRUCTURES_H
-#endif //LAB_HAFFMAN_STRUCTURES_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -38,3 +36,4 @@ void write_header(FILE *f, archive_header *header);
 void read_header(FILE *f, archive_header *header);
 void print_header(archive_header *header);
 fpos_t get_cur_file_pos(FILE *f);
+#endif //LAB_HAFFMAN_STRUCTURES_H

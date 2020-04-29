@@ -9,28 +9,41 @@ void get_alphabet(FILE *input, char alphabet[256], size_t size) {
     fread(alphabet, 1, size, input);
 }
 
-Node* restore_tree(FILE *input, char *alphabet, int *idx, int ch, int* has_leaf, int depth) {
-    if (ch == 'U' && *has_leaf == -1) {
+void check_byte_update(char *byte, int *bit_pos, FILE *input) {
+    if (*bit_pos > 7) {
+        *bit_pos = 0;
+        fread(byte, 1, 1, input);
+    }
+}
+
+Node* restore_tree(FILE *input, char *alphabet, int *idx, char *byte, int *bit_pos, int* has_leaf, int level) {
+    if ((byte[0] & (1 << *bit_pos)) == 0 && *has_leaf == -1) {
         *has_leaf = 1;
-        idx[0] += 1;
-        return make_node(alphabet[*idx]);       // make leaf
-    }
+        idx[0]++;
+        bit_pos[0]++;
+        check_byte_update(byte, bit_pos, input);
 
+        Node *node = make_node(alphabet[*idx]);     // make leaf
+        return node;
+    }
     Node *node = make_node(-1);     // make node
-    if (ch == 'L') {
+
+    if ((byte[0] & (1 << *bit_pos)) != 0) {
         *has_leaf = -1;
-        node->left = restore_tree(input, alphabet, idx, getc(input), has_leaf, depth + 1);     // gets left sub tree
+        bit_pos[0]++;
+        check_byte_update(byte, bit_pos, input);
+
+        node->left = restore_tree(input, alphabet, idx, byte, bit_pos, has_leaf, level + 1);
+    }
+    *has_leaf = -1;
+    node->right = restore_tree(input, alphabet, idx, byte, bit_pos, has_leaf, level + 1);
+
+    if (level > 0) {
+        bit_pos[0]++;
+        check_byte_update(byte, bit_pos, input);
     }
 
-    ch = getc(input);
-    if (ch == 'R') {
-        *has_leaf = -1;
-        node->right = restore_tree(input, alphabet, idx, getc(input), has_leaf, depth + 1);    // gets right sub tree
-    }
-    if (depth > 0) {
-        getc(input);    // read 'U' before returning the node
-    }
-    return node;    // return node
+    return node;
 }
 
 void decode_bytes(FILE *input, FILE *output, Node *root, int count) {
@@ -88,23 +101,24 @@ void decode_bytes(FILE *input, FILE *output, Node *root, int count) {
 }
 
 void decompress(FILE * input, FILE *output) {
-    FILE *header_file = fopen("../../header_file", "rb");
+    //FILE *header_file = fopen("../../header_file", "rb");
     archive_header header = {0};
-    read_header(header_file, &header);
+    read_header(input, &header);
 
     if (header.alphabet_size > 1) {
         char alphabet[256];
-        get_alphabet(header_file, alphabet, header.alphabet_size);
+        get_alphabet(input, alphabet, header.alphabet_size);
 
         int val, val2 = -1;
         int *idx = &val;
         int *has_leaf = &val2;
         *idx = -1;
 
-        Node *root = restore_tree(header_file, alphabet, idx, getc(header_file), has_leaf, 0);
-/*        assert((get_cur_file_pos(input) == (sizeof(archive_header) + header.alphabet_size + header.tree_size)) &&
-               "wrong pos after reading tree");
-*/
+        char ch = 0;
+        int bit_pos = 0;
+        fread(&ch, 1, 1, input);
+        Node *root = restore_tree(input, alphabet, idx, &ch, &bit_pos, has_leaf, 0);
+
         decode_bytes(input, output, root, header.data_size);
         free_tree(root);
     }
@@ -116,6 +130,4 @@ void decompress(FILE * input, FILE *output) {
             fwrite(&ch, 1, 1, output);
         }
     }
-    fclose(header_file);
-    remove("../../header_file");
 }
