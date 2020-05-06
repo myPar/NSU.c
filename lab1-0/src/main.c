@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 int main(int argc, char *argv[]) {
-    char template[20] = {20};
+    char template[20] = {0};
     char source[128] = {0};
     int offset_arr[256] = {0};
     int temp_length = 0;
