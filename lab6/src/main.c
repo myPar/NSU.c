@@ -129,8 +129,7 @@ Node *insert(Node *root, Node *paste_node) {
 }
 
 int main(int argc, char *argv[]) {
-    FILE *input = NULL;
-    input = set_input(argc, argv);
+    FILE *input = set_input(argc, argv);
     unsigned int nodes_number = 0;
 
     if (!fscanf(input, "%u", &nodes_number)) {
