@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
     input = set_input(argc, argv);
     unsigned int nodes_number = 0;
 
-    if (!fscanf(input, "%d", &nodes_number)) {
+    if (!fscanf(input, "%u", &nodes_number)) {
         printf("can't read an integer value");
         exit(1);
     }
