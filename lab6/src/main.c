@@ -11,14 +11,12 @@ struct AVLTreeNode {
     Node *right;
 };
 // Node constructor
-Node *make_node(int value) {
-    Node *node = (Node*) malloc(sizeof(Node));
+void make_node(int value, Node *node) {
     node->value = value;
     node->height = 1;
 
     node->left = NULL;
     node->right = NULL;
-    return node;
 }
 // free dynamic memory from tree nodes data
 void free_tree(Node *root) {
@@ -142,17 +140,17 @@ int main(int argc, char *argv[]) {
     Node *root = NULL;
     unsigned int i = 0;
     int value = 0;
+    Node *node_list = (Node*) malloc(sizeof(Node) * nodes_number);
 
     for (; i < nodes_number; i++) {
         if (!fscanf(input, "%d", &value)) {
             printf("can't read an integer value");
             exit(1);
         }
-        root = insert(root, make_node(value));
+        make_node(value, &node_list[i]);
+        root = insert(root, &node_list[i]);
     }
     printf("%d", get_height(root));
-    if (root != NULL) {
-        free_tree(root);
-    }
+    free(node_list);
     return 0;
 }
