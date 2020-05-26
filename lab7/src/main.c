@@ -41,9 +41,8 @@ void free_list(Edge *head) {
     }
 }
 void free_edge_list(Edge *edge_list, int list_size) {
-    Edge *cur_edge;
     for (int i = 0; i < list_size; i++) {
-        cur_edge = &edge_list[i];
+        Edge *cur_edge = &edge_list[i];
         if (cur_edge->next != NULL) {
             free_list(cur_edge->next);
         }
