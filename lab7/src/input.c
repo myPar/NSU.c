@@ -42,3 +42,4 @@ int read_int(FILE *input, int *number, char *out_of_bound_message, int left_boun
     }
     return 0;
 }
+

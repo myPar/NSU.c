@@ -2,95 +2,40 @@
 #include <stdlib.h>
 #include "input.h"
 
-typedef struct GraphEdge Edge;
-struct GraphEdge {
-    int idx;   // node index
-    Edge *next;         // pointer to next edge of current node
-};
-Edge *make_edge(int idx) {
-    Edge *edge = (Edge*) malloc(sizeof(Edge));
-    edge->idx = idx;
-    edge->next = NULL;
-    return edge;
-}
-// init next edge in current node
-void init_edge(Edge *head, int node_idx) {
-    if (head->idx == -1) {
-        // init first edge in the node
-        head->idx = node_idx;
-    }
-    else {
-        // init lats edge
-        Edge *cur_edge = head;
+#define EXIT()                                      \
+    free(colour_array);                             \
+    free(edges_number_array);                       \
+    for (int l = 0; l < vertices_number; l++) {     \
+        free(adjacency_list[l]);                    \
+    }                                               \
+    free(adjacency_list);                           \
+    exit(0);
 
-        while (cur_edge->next != NULL) {
-            cur_edge = cur_edge->next;
+void dfs(char *colour_array, short *edges_number_array, short **adjacency_list,
+        int cur_idx, int vertices_number, short *result, int *res_idx) {
+    // mark as 'grey' node
+    colour_array[cur_idx] = 1;
+    int edges_number = edges_number_array[cur_idx];
+    // loop on adjacency list of current node
+    for (int i = 0; i < edges_number; i++) {
+        short cur_node = adjacency_list[cur_idx][edges_number - i - 1];
+
+        if (colour_array[cur_node] == 0) {
+            dfs(colour_array, edges_number_array, adjacency_list, cur_node, vertices_number,  result, res_idx);
         }
-        cur_edge->next = make_edge(node_idx);
-    }
-}
-// free linked list memory
-void free_list(Edge *head) {
-    if (head->next == NULL) {
-        free(head);
-    }
-    else {
-        Edge *next_pointer = head->next;
-        free(head);
-        free_list(next_pointer);
-    }
-}
-void free_edge_list(Edge *edge_list, int list_size) {
-    for (int i = 0; i < list_size; i++) {
-        Edge *cur_edge = &edge_list[i];
-        if (cur_edge->next != NULL) {
-            free_list(cur_edge->next);
-        }
-    }
-    free(edge_list);
-}
-
-void top_sort(Edge *edge_list, int *edge_number_list, int vertex_number) {
-    int vertex_idx;
-    int cur_idx = 0;
-    int *output_list = (int*) malloc(sizeof(int) * vertex_number);
-
-    while (cur_idx < vertex_number) {
-        vertex_idx = -1;
-
-        for (int i = 0; i < vertex_number; i++) {
-            if (edge_number_list[i] == 0) {
-                // mark vertex as traversed
-                edge_number_list[i] = -1;
-                vertex_idx = i;
-                break;
+        else {
+            if (colour_array[cur_node] == 1) {
+                // there is a loop in the graph
+                printf("impossible to sort");
+                free(result);
+                EXIT()
             }
         }
-        if (vertex_idx == -1) {
-            printf("impossible to sort");
-            free_edge_list(edge_list, vertex_number);
-            free(edge_number_list);
-            exit(0);
-        }
-        // add vertex to output list
-        output_list[cur_idx] = vertex_idx + 1;
-        cur_idx++;
-        Edge *cur_edge = &edge_list[vertex_idx];
-
-        while (cur_edge != NULL) {
-            // decrease input edges number for adjacent nodes
-            if (cur_edge->idx > -1) {
-                edge_number_list[cur_edge->idx]--;
-            }
-            cur_edge = cur_edge->next;
-        }
     }
-    for (int i = 0; i < vertex_number; i++) {
-        printf("%d ", output_list[i]);
-    }
-    free_edge_list(edge_list, vertex_number);
-    free(edge_number_list);
-    free(output_list);
+    // mark as black
+    colour_array[cur_idx] = 2;
+    result[*res_idx] = (short) cur_idx + 1;
+    (*res_idx)++;
 }
 
 int main(int argc, char *argv[]) {
@@ -98,28 +43,26 @@ int main(int argc, char *argv[]) {
     int vertices_number = 0;
     int edges_number = 0;
 
-    Edge *edge_list;
-    int *edge_number_list;
-
     // read vertices number
     if (read_int(input, &vertices_number, "bad number of vertices",
-            0, 1000)) {
+                 0, 1000)) {
         exit(0);
     }
     // read edges number
     if (read_int(input, &edges_number, "bad number of edges",
-            0, vertices_number * (vertices_number - 1) / 2)) {
+                 0, vertices_number * (vertices_number - 1) / 2)) {
         exit(0);
     }
-    edge_list = (Edge*) malloc(sizeof(Edge) * vertices_number);
-    edge_number_list = (int*) malloc(sizeof(int) * vertices_number);
+    char *colour_array = (char*) malloc(sizeof(char)*vertices_number);
+    short *edges_number_array = (short*) malloc(sizeof(short) * vertices_number);
+    short **adjacency_list = (short**) malloc(vertices_number * (sizeof(short*)));
 
-    // start lists initialisation:
+    // initial initialisation
     for (int i = 0; i < vertices_number; i++) {
-        edge_list[i] = *make_edge(-1);
-    }
-    for (int i = 0; i < vertices_number; i++) {
-        edge_number_list[i] = 0;
+        colour_array[i] = 0;
+        edges_number_array[i] = 0;
+        // allocate memory for one element
+        adjacency_list[i] = (short*) malloc(sizeof(short));
     }
     int start_node;
     int end_node;
@@ -128,22 +71,41 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < edges_number; i++) {
         // read start node
         if (read_int(input, &start_node, "bad vertex",
-                0, vertices_number)) {
-            free_edge_list(edge_list, vertices_number);
-            free(edge_number_list);
-            exit(0);
+                     0, vertices_number)) {
+            EXIT()
         }
         // read end node
         if (read_int(input, &end_node, "bad vertex",
                      0, vertices_number)) {
-            free_edge_list(edge_list, vertices_number);
-            free(edge_number_list);
-            exit(0);
+            EXIT()
         }
-        init_edge(&edge_list[start_node - 1], end_node - 1);
-        edge_number_list[end_node - 1]++;
-    }
-    top_sort(edge_list, edge_number_list, vertices_number);
+        int idx = start_node - 1;
+        edges_number_array[idx]++;
 
-    return 0;
+        if (edges_number_array[idx] == 1) {
+            // initial assignment
+            adjacency_list[idx][0] = (short) end_node - 1;
+        }
+        else {
+            // memory reallocation and assignment
+            adjacency_list[idx] = (short*) realloc(adjacency_list[idx], sizeof(short) * edges_number_array[idx]);
+            adjacency_list[idx][edges_number_array[idx] - 1] = (short) end_node - 1;
+        }
+    }
+    short *answer = (short*) malloc(sizeof(short) * vertices_number);
+    int answer_idx = 0;
+    int *pointer = &answer_idx;
+
+    for (int i = 0; i < vertices_number; i++) {
+        if (colour_array[i] == 0) {
+            dfs(colour_array, edges_number_array, adjacency_list, i, vertices_number, answer, pointer);
+        }
+    }
+    for (int i = vertices_number - 1 ; i > -1; i--) {
+        printf("%hi ", answer[i]);
+    }
+
+    free(answer);
+    EXIT()
 }
+#undef EXIT
