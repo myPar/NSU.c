@@ -25,7 +25,7 @@ Edge *get_min_edge(Heap *heap, char *marked_array) {
 }
 
 void bfs(int **adjacency_list, Edge *edges_list, int *edges_number_array, int vertex_number, int edge_number) {
-    Edge **answer = (Edge**) malloc(sizeof(Edge*));
+    Edge **answer = (Edge**) malloc(sizeof(Edge*) * edge_number);   //
     char *marked_array = (char*) malloc(sizeof(char) * vertex_number);
 
     Heap *queue = make_heap(edge_number);
@@ -54,7 +54,7 @@ void bfs(int **adjacency_list, Edge *edges_list, int *edges_number_array, int ve
             }
         }
         cur_idx++;
-        answer = (Edge**) realloc(answer, sizeof(Edge*) * (cur_idx + 1));
+        //answer = (Edge**) realloc(answer, sizeof(Edge*) * (cur_idx + 1));
         // add not included to the frame edge
         answer[cur_idx] = get_min_edge(queue, marked_array);
 
