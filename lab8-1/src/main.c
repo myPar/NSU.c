@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #include "input.h"
 #include "structures.h"
 #include "make_frame.h"
