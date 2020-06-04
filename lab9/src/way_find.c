@@ -14,7 +14,15 @@ short *restore_path(short *restore_array, short *path_length, short start, short
         // move to next vertex in the path
         cur_vertex = restore_array[cur_vertex];
         // add new vertex in the path
-        path = (short*) realloc(path, sizeof(short) * (size + 1));
+        short *result = (short*) realloc(path, sizeof(short) * (size + 1));
+
+        if (result == NULL) {
+            free(path);
+            exit(1);
+        }
+        else {
+            path = result;
+        }
         path[size] = cur_vertex;
         size++;
     }
@@ -111,7 +119,7 @@ void find_path(int **matrix, short vertex_number, short start_vertex, short end_
         // adjacent vertices with weight > INT_MAX are there
         if (end_vertex != start_vertex) {
             short count = 0;
-            
+
             for (int i = 0; i < vertex_number; i++) {
                 if (matrix[end_idx][i] != -1) {
                     // summary weight <= 2 * INT_MAX + 1, so unsigned long type will be enough
