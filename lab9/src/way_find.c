@@ -107,10 +107,11 @@ void find_path(int **matrix, short vertex_number, short start_vertex, short end_
     }
     else {
         // check overflow
-        short count = 0;
         // if end vertex is equal start vertex it doesn't matter how much
         // adjacent vertices with weight > INT_MAX are there
         if (end_vertex != start_vertex) {
+            short count = 0;
+            
             for (int i = 0; i < vertex_number; i++) {
                 if (matrix[end_idx][i] != -1) {
                     // summary weight <= 2 * INT_MAX + 1, so unsigned long type will be enough
