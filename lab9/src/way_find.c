@@ -103,6 +103,7 @@ void find_path(int **matrix, short vertex_number, short start_vertex, short end_
     if (weight_array[end_idx] == UINT_MAX) {
         // no path to the end vertex
         printf("no path");
+        EXIT()
     }
     else {
         // check overflow
