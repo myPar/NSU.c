@@ -45,10 +45,6 @@ int main(int argc, char *argv[]) {
     }
     // current character position in the text
     int cur_text_pos = temp_length;
-    // current position in the source of right template bound
-    int template_bound_idx;
-    // current source length
-    int source_length = 0;
     // comparing characters indices:
     int i = 0;
     int j = 0;
@@ -58,9 +54,10 @@ int main(int argc, char *argv[]) {
         if (!fgets(source, 128, input)) {
             break;
         }
-
-        source_length = strlen(source);
-        template_bound_idx = temp_length - 1;
+        // current source length
+        int source_length = (int) strlen(source);
+        // current position in the source of right template bound
+        int template_bound_idx = temp_length - 1;
 
         while (template_bound_idx <= source_length - 1) {
             // set start positions of comparing characters
