@@ -36,10 +36,6 @@ int main(int argc, char *argv[]) {
     else {
         input = stdin;
     }
-    int source_length = 0;
-    int temp_length = 0;
-    // current substring and template hashes variables
-    int substring_hash = 0;
     int template_hash = 0;
 
     if (!fgets(template, 19, input)) {
@@ -48,12 +44,7 @@ int main(int argc, char *argv[]) {
     }
     // cut '\n' from the template
     template[strlen(template) - 1] = '\0';
-    temp_length = (int) strlen(template);
-
-    // start index of current substring
-    int start_idx;
-    // end index of current substring
-    int end_idx;
+    int temp_length = (int) strlen(template);
 
     // calculate template hash
     for (int i = 0; i < temp_length; i++) {
@@ -65,10 +56,10 @@ int main(int argc, char *argv[]) {
         if (!fgets(source, 128, input)) {
             break;
         }
-        source_length = (int) strlen(source);
-        start_idx = 0;
-        end_idx = temp_length - 1;
-        substring_hash = 0;
+        int source_length = (int) strlen(source);
+        int start_idx = 0;
+        int end_idx = temp_length - 1;
+        int substring_hash = 0;
         // calculate first substring hash
         for (int i = 0; i < temp_length; i++) {
             substring_hash += get_ch_hash((unsigned char) source[i], i);
