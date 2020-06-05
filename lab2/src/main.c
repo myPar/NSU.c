@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
         printf("can't read the string\n");
         exit(1);
     }
-    size_t ch_number = strlen(input_str);
+    int ch_number = (int) strlen(input_str);
     permutation_count = atoi(count_str);
 
     // cut '\n' in the end of the string
