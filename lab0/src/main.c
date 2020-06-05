@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "input.h"
 #include "change_base.h"
 
@@ -21,4 +22,3 @@ int main() {
     free(input_number);
     return 0;
 }
-
