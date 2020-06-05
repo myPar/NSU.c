@@ -57,7 +57,6 @@ void get_permutations(int queue[10], int queue_size, char *perm_str, int *perm_c
 }
 
 int main(int argc, char *argv[]) {
-    char *input_file_name;
     FILE *input = NULL;
 
     char input_str[20] = {0};
@@ -74,7 +73,7 @@ int main(int argc, char *argv[]) {
             printf("incorrect number of arguments: \nshould be input file name or no arguments");
             exit(1);
         }
-        input_file_name = argv[1];
+        char *input_file_name = argv[1];
 
         if (!(input = fopen(input_file_name, "rt"))) {
             printf("can't open the file for reading");
@@ -98,11 +97,10 @@ int main(int argc, char *argv[]) {
     // cut '\n' in the end of the string
     input_str[ch_number - 1] = '\0';
     ch_number--;
-    int cur_int;
 
     // get permutation "alphabet"
     for (int i = 0; i < ch_number; i++) {
-        cur_int = input_str[i] - '0';
+        int cur_int = input_str[i] - '0';
 
         if (cur_int > 9 || cur_int < 0) {
             // unexpected character in input string
