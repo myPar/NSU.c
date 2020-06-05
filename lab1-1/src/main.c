@@ -17,8 +17,8 @@ int get_substring_hash(int prev_hash, unsigned char start_ch, unsigned char end_
 int main(int argc, char *argv[]) {
     FILE *input = NULL;
     char *input_file_name = NULL;
-    unsigned char source[128] = {0};
-    unsigned char template[20] = {0};
+    char source[128] = {0};
+    char template[20] = {0};
     int cur_source_bound_pos = 1;
 
     if (argc > 1) {
@@ -42,10 +42,13 @@ int main(int argc, char *argv[]) {
     int substring_hash = 0;
     int template_hash = 0;
 
-    fgets(template, 20, input);
+    if (!fgets(template, 19, input)) {
+        printf("can't read a string\n");
+        exit(1);
+    }
     // cut '\n' from the template
     template[strlen(template) - 1] = '\0';
-    temp_length = strlen(template);
+    temp_length = (int) strlen(template);
 
     // start index of current substring
     int start_idx;
@@ -60,7 +63,7 @@ int main(int argc, char *argv[]) {
 
     while (!feof(input)) {
         fgets(source, 128, input);
-        source_length = strlen(source);
+        source_length = (int) strlen(source);
         start_idx = 0;
         end_idx = temp_length - 1;
         substring_hash = 0;
