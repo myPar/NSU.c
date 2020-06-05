@@ -40,7 +40,7 @@ void get_permutations(int queue[10], int queue_size, char *perm_str, int *perm_c
                 queue_copy[i] = 0;
                 // convert i to string for merging it
                 // with current permutation string
-                itoa(i, str_number, 10);
+                _itoa(i, str_number, 10);
                 strcat(perm_str_copy, str_number);
                 get_permutations(queue_copy, queue_size - 1, perm_str_copy,
                                  perm_count, input_perm, was_comparing);
