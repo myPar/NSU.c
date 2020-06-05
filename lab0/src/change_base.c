@@ -83,10 +83,9 @@ void convert_fractal_part(char* fractal_part_output, double fractal_part, int ba
 
 void reverse_string(char* input_string) {
     int length = (int) strlen(input_string);
-    char ch;
 
     for (int i = 0; i < length / 2; i++) {
-        ch = input_string[i];
+        char ch = input_string[i];
         input_string[i] = input_string[length - i - 1];
         input_string[length - i - 1] = ch;
     }

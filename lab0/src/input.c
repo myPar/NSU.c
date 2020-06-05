@@ -6,11 +6,10 @@
 
 bool is_correct_number(int number_base, char number[]) {
     char *base_array = "0123456789abcdef";
-    bool is_correct;
     bool was_point = false;
 
     for (int i = 0; i < (int) strlen(number); i++) {
-        is_correct = false;
+        bool is_correct = false;
 
         for (int j = 0; j < number_base; j++) {
             if (number[i] == base_array[j]) {
@@ -48,7 +47,7 @@ int get_input(int *arg1_pointer, int *arg2_pointer, char** arg3_pointer) {
         return -1;
     }
 
-    if (!scanf("%s", input_number)) {
+    if (!scanf("%13s", input_number)) {
         printf("can't read a string value\n");
         exit(1);
     }
