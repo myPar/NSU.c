@@ -10,8 +10,7 @@
     }
 
 int main(int argc, char *argv[]) {
-    FILE *input = NULL;
-    input = set_input(argc, argv);
+    FILE *input = set_input(argc, argv);
 
     int array_size;
     GET_INT(&array_size)
