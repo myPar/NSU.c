@@ -62,7 +62,9 @@ int main(int argc, char *argv[]) {
     printf("%d%s", template_hash, " ");
 
     while (!feof(input)) {
-        fgets(source, 128, input);
+        if (!fgets(source, 128, input)) {
+            break;
+        }
         source_length = (int) strlen(source);
         start_idx = 0;
         end_idx = temp_length - 1;
