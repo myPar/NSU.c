@@ -3,6 +3,13 @@
 #include <string.h>
 #include <stdbool.h>
 
+// itoa() isn't valid for builder on gitlab
+void int_to_str(int i, char *result) {
+    char ch = (char)(i + '0');
+    result[0] = ch;
+    result[1] = '\0';
+}
+
 void get_permutations(int queue[10], int queue_size, char *perm_str, int *perm_count,
         char *input_perm, bool *was_comparing) {
 
@@ -40,7 +47,7 @@ void get_permutations(int queue[10], int queue_size, char *perm_str, int *perm_c
                 queue_copy[i] = 0;
                 // convert i to string for merging it
                 // with current permutation string
-                _itoa(i, str_number, 10);
+                int_to_str(i, str_number);
                 strcat(perm_str_copy, str_number);
                 get_permutations(queue_copy, queue_size - 1, perm_str_copy,
                                  perm_count, input_perm, was_comparing);
