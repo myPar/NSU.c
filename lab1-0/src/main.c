@@ -26,8 +26,11 @@ int main(int argc, char *argv[]) {
     else {
         input = stdin;
     }
+    if (!fgets(template, 20, input)) {
+        printf("can't read a string\n");
+        exit(1);
+    }
 
-    fgets(template, 20, input);
     // cut '\n' from the template
     template[strlen(template) - 1] = '\0';
     temp_length = strlen(template);
@@ -52,7 +55,10 @@ int main(int argc, char *argv[]) {
 
     while (!feof(input)) {
         // get new source
-        fgets(source, 128, input);
+        if (!fgets(source, 128, input)) {
+            break;
+        }
+
         source_length = strlen(source);
         template_bound_idx = temp_length - 1;
 
@@ -75,6 +81,8 @@ int main(int argc, char *argv[]) {
             cur_text_pos += offset;
         }
     }
-    fclose(input);
+    if (input != stdin) {
+        fclose(input);
+    }
     return 0;
 }
