@@ -77,7 +77,7 @@ void convert_fractal_part(char* fractal_part_output, double fractal_part, int ba
         double int_part;
         fractal_part = modf(fractal_part * base, &int_part);
         char ch[2] = {get_number((int) int_part), 0};
-        char *result = strcat(fractal_part_output, ch);
+        strcat(fractal_part_output, ch);
     }
 }
 
@@ -100,7 +100,7 @@ void new_base_convert(char* output_number, double number, int base) {  // return
     reverse_string(output_number);
 
     if (fractal_part > 0) {
-        char *result = strcat(output_number, ".");
+        strcat(output_number, ".");
         convert_fractal_part(output_number, fractal_part, base);
     }
 }

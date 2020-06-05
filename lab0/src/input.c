@@ -9,7 +9,7 @@ bool is_correct_number(int number_base, char number[]) {
     bool is_correct;
     bool was_point = false;
 
-    for (int i = 0; i < strlen(number); i++) {
+    for (int i = 0; i < (int) strlen(number); i++) {
         is_correct = false;
 
         for (int j = 0; j < number_base; j++) {
@@ -53,7 +53,7 @@ int get_input(int *arg1_pointer, int *arg2_pointer, char** arg3_pointer) {
         exit(1);
     }
     // set all characters to lowercase
-    for (int i = 0; i < strlen(input_number); i++) {
+    for (int i = 0; i < (int) strlen(input_number); i++) {
         input_number[i] = (char) tolower(input_number[i]);
     }
     if (!is_correct_number(start_base, input_number)) {
