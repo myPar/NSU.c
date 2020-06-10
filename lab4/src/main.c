@@ -8,7 +8,7 @@
 #include "postfix_notation.h"
 
 #define EXIT()                                  \
-    for (int i = 0; i < expression_len; i++) {  \
+    for (int i = 0; i < (int) expression_len; i++) {  \
         if (token_list[i] != NULL) {            \
             free(token_list[i]);                \
         }                                       \
@@ -41,12 +41,12 @@ int main(int argc, char *argv[]) {
     }
     Token **token_list = (Token**) malloc(sizeof(Token*) * expression_len);
     // first initialization
-    for (int i = 0; i < expression_len; i++) {
+    for (int i = 0; i < (int) expression_len; i++) {
         token_list[i] = NULL;
     }
     int list_idx = 0;
 
-    while (cur_idx < expression_len) {
+    while (cur_idx < (int) expression_len) {
         if ((token_list[list_idx] = get_token(input_string, &cur_idx)) == NULL) {
             printf("syntax error");
             EXIT()

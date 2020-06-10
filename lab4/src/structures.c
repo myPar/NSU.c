@@ -114,6 +114,7 @@ Token *get_token(const char *expression_string, int *idx) {
     char value_str[20] = {0};
     value_str[0] = expression_string[*idx];
     Type token_type;
+    int ident_size;
 
     switch (value_str[0]) {
         case '+':
@@ -133,7 +134,7 @@ Token *get_token(const char *expression_string, int *idx) {
             break;
         default:
             // all other cases have been checked, so this is an IDENT token
-            int ident_size = get_ident_size(expression_string, idx);
+            ident_size = get_ident_size(expression_string, idx);
 
             if (!ident_size) {
                 // if ident size is equal zero - syntax error
