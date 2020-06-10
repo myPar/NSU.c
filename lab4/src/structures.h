@@ -14,7 +14,7 @@ char *get_string_value(Type type);
 typedef struct ExpressionToken Token;
 struct ExpressionToken {
     Type type;      // Token type
-    char value[20];     // string value: "1..9", "(", "(", "+../"
+    char value[20];     // string value: "1..9", "(", ")", "+../"
 };
 // constructor
 Token *make_token(const char *string_value, Type type);
@@ -30,6 +30,8 @@ struct ListNode {
 };
 // constructor
 Node *make_node(Token *token);
+// free node memory method
+void free_node(Node *node);
 // calculates operation presented by 'operator' with 'arg1' and 'arg2' arguments
 Node *calculate(Node *operator, Node *arg1, Node *arg2);
 

@@ -7,6 +7,15 @@
 #include "expression_correctness.h"
 #include "postfix_notation.h"
 
+#define EXIT()                                  \
+    for (int i = 0; i < expression_len; i++) {  \
+        if (token_list[i] != NULL) {            \
+            free(token_list[i]);                \
+        }                                       \
+    }                                           \
+    free(token_list);                           \
+    exit(0);
+
 int main(int argc, char *argv[]) {
     FILE *input = NULL;
     char input_string[1024] = {0};
@@ -30,23 +39,35 @@ int main(int argc, char *argv[]) {
             exit(0);
         }
     }
-    Token *token_list = (Token*) malloc(sizeof(Token) * expression_len);
+    Token **token_list = (Token**) malloc(sizeof(Token*) * expression_len);
+    // first initialization
+    for (int i = 0; i < expression_len; i++) {
+        token_list[i] = NULL;
+    }
     int list_idx = 0;
 
     while (cur_idx < expression_len) {
-        token_list[list_idx] = *get_token(input_string, &cur_idx);
+        if ((token_list[list_idx] = get_token(input_string, &cur_idx)) == NULL) {
+            printf("syntax error");
+            EXIT()
+        }
         list_idx++;
     }
-    check_correctness(token_list, list_idx);
+    if (check_correctness(token_list, list_idx)) {
+        printf("syntax error");
+        EXIT()
+    }
     List *stack = make_list();
 
     for (int i = list_idx - 1; i > -1; i--) {
-        push(stack, make_node(&(token_list[i])));
+        push(stack, make_node(token_list[i]));
     }
-    List *notation = build_notation(stack);
-    int result = calculate_notation(notation);
+    List *notation = build_notation(stack, token_list);
+
+    int result = calculate_notation(notation, token_list);
     printf("%d", result);
 
-    free(token_list);
     return 0;
 }
+
+#undef EXIT

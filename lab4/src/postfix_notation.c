@@ -4,7 +4,15 @@
 #include <assert.h>
 #include "structures.h"
 
-List *build_notation(List *input_list) {
+#define EXIT()                      \
+    printf("syntax error");         \
+    free_list(operation_stack);     \
+    free_list(output_stack);        \
+    free_list(input_list);          \
+    free(token_list);               \
+    exit(0);
+
+List *build_notation(List *input_list, Token **token_list) {
     List *output_stack = make_list();
     List *operation_stack = make_list();
     Node *cur_node;
@@ -44,7 +52,7 @@ List *build_notation(List *input_list) {
 
                 for (int i = 0; i < cur_stack_size; i++) {
                     if ((operation_stack->tail)->token->type == OPEN_PARENTHESIS) {
-                        free(pop(operation_stack));
+                        free_node(pop(operation_stack));
                         is_complete = true;
                         break;
                     }
@@ -52,21 +60,16 @@ List *build_notation(List *input_list) {
                 }
                 if (!is_complete) {
                     // disturbed parenthesis balance
-                    printf("syntax error");
-                    // free the memory
-                    free_list(operation_stack);
-                    free_list(output_stack);
-                    exit(0);
+                    EXIT()
                 }
-                free(cur_node); // free memory from unused node
+                // free memory from unused node
+                free_node(cur_node);
                 break;
         }
     }
     if (parenthesis_count != 0) {
-        printf("syntax error");
-        free_list(operation_stack);
-        free_list(output_stack);
-        exit(0);
+        // disturbed parenthesis balance
+        EXIT()
     }
     if (operation_stack->size > 0) {
         // add remaining data in the output stack
@@ -83,6 +86,8 @@ List *build_notation(List *input_list) {
     return output_stack;
 }
 
+#undef EXIT
+
 Node *get_operator_pointer(List *notation) {
     Node *cur_node = notation->head;
 
@@ -93,9 +98,9 @@ Node *get_operator_pointer(List *notation) {
 }
 
 // input expression has the correct infix syntax
-// so we just have to calculate an expression
-// without exception checking
-int calculate_notation(List *postfix_notation) {
+// so we just have to calculate an expression without
+// exception checking (besides division by zero checking)
+int calculate_notation(List *postfix_notation, Token **token_list) {
     Node *operator;
     Node *operand1;
     Node *operand2;
@@ -110,6 +115,7 @@ int calculate_notation(List *postfix_notation) {
         if (result == NULL) {
             printf("division by zero");
             free_list(postfix_notation);
+            free(token_list);
             exit(0);
         }
         // change pointers
@@ -130,14 +136,15 @@ int calculate_notation(List *postfix_notation) {
             postfix_notation->tail = result;
         }
         // free memory from cut nodes
-        free(operand1);
-        free(operand2);
-        free(operator);
+        free_node(operand1);
+        free_node(operand2);
+        free_node(operator);
         postfix_notation->size -= 2;
     }
     assert(postfix_notation->head->token->type == IDENT);
     int res = atoi(postfix_notation->head->token->value);
     free_list(postfix_notation);
+    free(token_list);
 
     return res;
 }

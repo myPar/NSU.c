@@ -31,6 +31,10 @@ Node *make_node(Token *token) {
     node->prev = NULL;
     return node;
 }
+void free_node(Node *node) {
+    free(node->token);
+    free(node);
+}
 
 List *make_list() {
     List *list = (List*) malloc(sizeof(List));
@@ -77,6 +81,7 @@ void free_list(List *list) {
     int cur_size = list->size;
 
     for (int i = 0; i < cur_size; i++) {
+        free(list->tail->token);
         free(list->tail);
         list->tail = cur_node;
 
@@ -89,30 +94,22 @@ void free_list(List *list) {
 
 // other methods
 bool is_digit(char ch) {
-    return (ch - '0' >= 0) && ((ch - '0' <= 9)) ? true: false;
+    return (ch - '0' >= 0) && ((ch - '0' <= 9)) ? true : false;
 }
 
 int get_ident_size(const char *expression_string, int *idx) {
     int ident_size = 0;
 
     if (expression_string[*idx] == '0' && is_digit(expression_string[*idx + 1])) {
-        // if first character is zero so next shouldn't be a digit
-        printf("syntax error");
-        exit(0);
+        return ident_size;
     }
     while (is_digit(expression_string[*idx])) {
         (*idx)++;
         ident_size++;
     }
-
-    if (!ident_size) {
-        // the character can't be recognized as a token value
-        printf("syntax error");
-        exit(0);
-    }
     return ident_size;
 }
-
+// returns token in case of success and NULL otherwise
 Token *get_token(const char *expression_string, int *idx) {
     char value_str[20] = {0};
     value_str[0] = expression_string[*idx];
@@ -138,6 +135,10 @@ Token *get_token(const char *expression_string, int *idx) {
             // all other cases have been checked, so this is an IDENT token
             int ident_size = get_ident_size(expression_string, idx);
 
+            if (!ident_size) {
+                // if ident size is equal zero - syntax error
+                return  NULL;
+            }
             for (int i = 0; i < ident_size; i++) {
                 value_str[i] = expression_string[*idx - ident_size + i];
             }
@@ -160,7 +161,31 @@ int get_priority(Token *token) {
             exit(1);
     }
 }
+// itoa() doesn't recognized by compiler on gitlab
+char *int_to_string(int number, char *result) {
+    int idx = 0;
+    int delta = 0;
 
+    if (number < 0) {
+        result[idx] = '-';
+        idx++;
+        number = -number;
+        delta = 1;
+    }
+    while (number > 0) {
+        result[idx] = (char)('0' + number % 10);
+        number /= 10;
+        idx++;
+    }
+    result[idx] = '\0';
+    // reverse string
+    for (int i = 0; i < idx / 2; i++) {
+        char copy = result[i + delta];
+        result[i + delta] = result[idx - 1 - i];
+        result[idx - 1 - i] = copy;
+    }
+    return result;
+}
 // 'operator' always have OPERATOR token type
 Node *calculate(Node *operator, Node *arg1, Node *arg2) {
     int result = 0;
@@ -184,7 +209,7 @@ Node *calculate(Node *operator, Node *arg1, Node *arg2) {
             result  = arg1_int / arg2_int;
     }
     char result_str[20] = {0};
-    itoa(result, result_str, 10);
+    int_to_string(result, result_str);
     // make node token
     Token *node_token = make_token(result_str, IDENT);
 
