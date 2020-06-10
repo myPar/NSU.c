@@ -15,12 +15,11 @@
 List *build_notation(List *input_list, Token **token_list) {
     List *output_stack = make_list();
     List *operation_stack = make_list();
-    Node *cur_node;
     int parenthesis_count = 0;
     bool is_complete;
 
     while (input_list->size > 0) {
-        cur_node = pop(input_list);
+        Node *cur_node = pop(input_list);
 
         switch (cur_node->token->type) {
             case IDENT:
@@ -101,16 +100,12 @@ Node *get_operator_pointer(List *notation) {
 // so we just have to calculate an expression without
 // exception checking (besides division by zero checking)
 int calculate_notation(List *postfix_notation, Token **token_list) {
-    Node *operator;
-    Node *operand1;
-    Node *operand2;
-    Node *result;
 
     while (postfix_notation->size > 1) {
-        operator = get_operator_pointer(postfix_notation);
-        operand1 = operator->prev->prev;
-        operand2 = operator->prev;
-        result = calculate(operator, operand1, operand2);
+        Node *operator = get_operator_pointer(postfix_notation);
+        Node *operand1 = operator->prev->prev;
+        Node *operand2 = operator->prev;
+        Node *result = calculate(operator, operand1, operand2);
 
         if (result == NULL) {
             printf("division by zero");

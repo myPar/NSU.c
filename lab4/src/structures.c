@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 // gets string value of the 'Type' enum
+/*
 char *get_string_value(Type type) {
     switch (type) {
         case OPERATOR: return "OPERATOR";
@@ -15,7 +16,7 @@ char *get_string_value(Type type) {
             exit(1);
     }
 }
-
+*/
 // structures constructors implementation
 Token *make_token(const char *value, Type type) {
     Token *token = (Token*) malloc(sizeof(Token));

@@ -7,23 +7,22 @@
 #include "expression_correctness.h"
 #include "postfix_notation.h"
 
-#define EXIT()                                  \
-    for (int i = 0; i < (int) expression_len; i++) {  \
-        if (token_list[i] != NULL) {            \
-            free(token_list[i]);                \
-        }                                       \
-    }                                           \
-    free(token_list);                           \
+#define EXIT()                                          \
+    for (int i = 0; i < (int) expression_len; i++) {    \
+        if (token_list[i] != NULL) {                    \
+            free(token_list[i]);                        \
+        }                                               \
+    }                                                   \
+    free(token_list);                                   \
     exit(0);
 
 int main(int argc, char *argv[]) {
-    FILE *input = NULL;
+    FILE *input = set_input(argc, argv);
     char input_string[1024] = {0};
 
     size_t expression_len;
     int cur_idx = 0;
 
-    input = set_input(argc, argv);
     if (!(fgets(input_string, 1024, input))) {
         printf("can't read a string");
         exit(1);

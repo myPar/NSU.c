@@ -8,7 +8,7 @@ typedef enum {
     CLOSE_PARENTHESIS
 } Type;
 // returns string value of the enum
-char *get_string_value(Type type);
+//char *get_string_value(Type type);
 
 // structure implements basic block of expression component
 typedef struct ExpressionToken Token;
