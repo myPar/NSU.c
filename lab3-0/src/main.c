@@ -6,8 +6,7 @@
 #define GET_INT(x)                  \
     if (!fscanf(input, "%d", x)) {  \
         printf("can't write data"); \
-        free(input_array);          \
-        return 1;                   \
+        exit(1);                    \
     }
 
 int main(int argc, char *argv[]) {
@@ -17,9 +16,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     int array_size;
-    int *input_array = (int*) malloc(sizeof(int));
     GET_INT(&array_size)
-    input_array = realloc(input_array, array_size * sizeof(int));
+    int *input_array = (int*) malloc(sizeof(int) * array_size);
 
     for (int i = 0; i < array_size; i++) {
         GET_INT(&(input_array[i]))
