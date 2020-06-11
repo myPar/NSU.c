@@ -93,8 +93,8 @@ int main(int argc, char *argv[]) {
         // increment left bound position of current source string in the text
         cur_source_bound_pos += source_length;
     }
-    return 0;
-}
-
 #undef buff_size
 #undef temp_size
+
+    return 0;
+}
