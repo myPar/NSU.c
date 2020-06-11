@@ -14,16 +14,20 @@
         }                                               \
     }                                                   \
     free(token_list);                                   \
-    exit(0);
+    return 0;
+#define src_size 1024
 
 int main(int argc, char *argv[]) {
-    FILE *input = set_input(argc, argv);
-    char input_string[1024] = {0};
+    FILE *input;
+    if ((input = set_input(argc, argv)) == NULL) {
+        return 1;
+    }
+    char input_string[src_size] = {0};
 
     size_t expression_len;
     int cur_idx = 0;
 
-    if (!(fgets(input_string, 1024, input))) {
+    if (!(fgets(input_string, src_size, input))) {
         printf("can't read a string");
         exit(1);
     }
@@ -35,7 +39,7 @@ int main(int argc, char *argv[]) {
         if (expression_len == 0) {
             // input string is empty
             printf("syntax error");
-            exit(0);
+            return 0;
         }
     }
     Token **token_list = (Token**) malloc(sizeof(Token*) * expression_len);
@@ -61,12 +65,18 @@ int main(int argc, char *argv[]) {
     for (int i = list_idx - 1; i > -1; i--) {
         push(stack, make_node(token_list[i]));
     }
-    List *notation = build_notation(stack, token_list);
+    List *notation;
+    if ((notation = build_notation(stack, token_list)) == NULL) {
+        return 0;
+    }
 
-    int result = calculate_notation(notation, token_list);
+    int result;
+    if (calculate_notation(notation, token_list, &result) == NULL) {
+        return 0;
+    }
     printf("%d", result);
 
     return 0;
 }
-
+#undef src_size
 #undef EXIT

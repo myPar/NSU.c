@@ -1,5 +1,6 @@
 #ifndef POSTFIX_NOTATION_STRUCTURES_H
 #define POSTFIX_NOTATION_STRUCTURES_H
+#define value_size 20
 // enum of possible token type
 typedef enum {
     OPERATOR,
@@ -14,7 +15,7 @@ typedef enum {
 typedef struct ExpressionToken Token;
 struct ExpressionToken {
     Type type;      // Token type
-    char value[20];     // string value: "1..9", "(", ")", "+../"
+    char value[value_size];     // string value: "1..9", "(", ")", "+../"
 };
 // constructor
 Token *make_token(const char *string_value, Type type);
@@ -50,4 +51,7 @@ void push(List *list, Node *paste_node);
 Node *pop(List *list);
 // free memory
 void free_list(List *list);
+
+#undef value_size
+
 #endif

@@ -10,7 +10,7 @@
     free_list(output_stack);        \
     free_list(input_list);          \
     free(token_list);               \
-    exit(0);
+    return NULL;
 
 List *build_notation(List *input_list, Token **token_list) {
     List *output_stack = make_list();
@@ -99,7 +99,7 @@ Node *get_operator_pointer(List *notation) {
 // input expression has the correct infix syntax
 // so we just have to calculate an expression without
 // exception checking (besides division by zero checking)
-int calculate_notation(List *postfix_notation, Token **token_list) {
+int *calculate_notation(List *postfix_notation, Token **token_list, int *res_pointer) {
 
     while (postfix_notation->size > 1) {
         Node *operator = get_operator_pointer(postfix_notation);
@@ -111,7 +111,7 @@ int calculate_notation(List *postfix_notation, Token **token_list) {
             printf("division by zero");
             free_list(postfix_notation);
             free(token_list);
-            exit(0);
+            return NULL;
         }
         // change pointers
         if (operand1->prev != NULL) {
@@ -141,5 +141,6 @@ int calculate_notation(List *postfix_notation, Token **token_list) {
     free_list(postfix_notation);
     free(token_list);
 
-    return res;
+    *res_pointer = res;
+    return res_pointer;
 }

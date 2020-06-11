@@ -110,9 +110,10 @@ int get_ident_size(const char *expression_string, int *idx) {
     }
     return ident_size;
 }
+#define value_size 20
 // returns token in case of success and NULL otherwise
 Token *get_token(const char *expression_string, int *idx) {
-    char value_str[20] = {0};
+    char value_str[value_size] = {0};
     value_str[0] = expression_string[*idx];
     Type token_type;
     int ident_size;
@@ -210,10 +211,12 @@ Node *calculate(Node *operator, Node *arg1, Node *arg2) {
             }
             result  = arg1_int / arg2_int;
     }
-    char result_str[20] = {0};
+    char result_str[value_size] = {0};
     int_to_string(result, result_str);
     // make node token
     Token *node_token = make_token(result_str, IDENT);
 
     return make_node(node_token);
 }
+
+#undef value_size
