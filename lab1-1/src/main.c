@@ -1,7 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 #include <string.h>
+#include "input.h"
 
 // returns character hash
 int get_ch_hash(unsigned char ch, int ch_idx) {
@@ -19,31 +18,17 @@ int get_substring_hash(int prev_hash, unsigned char start_ch, unsigned char end_
 }
 
 int main(int argc, char *argv[]) {
-    FILE *input = NULL;
-    char *input_file_name = NULL;
 #define buff_size 128
 #define temp_size 20
     char source[buff_size] = {0};
     char template[temp_size] = {0};
     int cur_source_bound_pos = 1;
-
-    if (argc > 1) {
-        if (argc != 2) {
-            printf("incorrect number of arguments: \nshould be input.txt file name or no arguments");
-            return 1;
-        }
-        input_file_name = argv[1];
-
-        if (!(input = fopen(input_file_name, "rt"))) {
-            printf("can't open the file for reading");
-            return 1;
-        }
-    }
-    else {
-        input = stdin;
-    }
     int template_hash = 0;
+    FILE *input;
 
+    if ((input = set_input(argc, argv)) == NULL) {
+        return 1;
+    }
     if (!fgets(template, temp_size, input)) {
         printf("can't read a string\n");
         return 1;
@@ -95,7 +80,7 @@ int main(int argc, char *argv[]) {
     }
 #undef buff_size
 #undef temp_size
-    
+
     if (input != stdin) {
         fclose(input);
     }
