@@ -95,6 +95,9 @@ int main(int argc, char *argv[]) {
     }
 #undef buff_size
 #undef temp_size
-
+    
+    if (input != stdin) {
+        fclose(input);
+    }
     return 0;
 }
