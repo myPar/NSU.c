@@ -38,6 +38,7 @@ int get_input(int *arg1_pointer, int *arg2_pointer, char** arg3_pointer) {
     char *input_number = (char*) malloc(sizeof(char) * 14);
 
     if (!scanf("%d%d", &start_base, &end_base)) {
+        free(input_number);
         printf("can't read integer values\n");
         return 1;
     }
@@ -48,6 +49,7 @@ int get_input(int *arg1_pointer, int *arg2_pointer, char** arg3_pointer) {
     }
 
     if (!scanf("%13s", input_number)) {
+        free(input_number);
         printf("can't read a string value\n");
         return 1;
     }
