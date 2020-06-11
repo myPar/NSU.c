@@ -39,7 +39,7 @@ int get_input(int *arg1_pointer, int *arg2_pointer, char** arg3_pointer) {
 
     if (!scanf("%d%d", &start_base, &end_base)) {
         printf("can't read integer values\n");
-        exit(1);
+        return 1;
     }
 
     if (!(start_base >= 2 && start_base <= 16) || !(end_base >= 2  && end_base <= 16)) {
@@ -49,7 +49,7 @@ int get_input(int *arg1_pointer, int *arg2_pointer, char** arg3_pointer) {
 
     if (!scanf("%13s", input_number)) {
         printf("can't read a string value\n");
-        exit(1);
+        return 1;
     }
     // set all characters to lowercase
     for (int i = 0; i < (int) strlen(input_number); i++) {

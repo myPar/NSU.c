@@ -14,10 +14,10 @@ int get_value(char ch) {   // gets 10-base value of the number
 }
 
 char get_number(int number) {
-    return (number <= 9) ? ((char)number + '0') : ((char)number - 10 + 'a');
+    return (number <= 9) ? ((char)(number + '0')) : ((char)(number - 10 + 'a'));
 }
 
-double get_base10_number(char* number, int base) { // returns double value of input number //cut get10
+double *get_base10_number(char* number, int base, double *res) { // returns double value of input number //cut get10
     int int_part_size = 1;
     int number_len = strlen(number);
     double result = 0;
@@ -36,13 +36,13 @@ double get_base10_number(char* number, int base) { // returns double value of in
     if (int_part_size == 0) {
         free(number);
         printf("%s", "bad input");
-        exit(0);
+        return NULL;
     }
     // we have one character after int part, so it can be only '.' and we have no fractal part
     if (int_part_size + 1 == number_len) {
         free(number);
         printf("%s", "bad input");
-        exit(0);
+        return NULL;
     }
     for (int i = 0; i < int_part_size; i++) {   // increment result on int part
         result += get_value(number[i]) * pow(base,(int_part_size - i - 1));
@@ -51,8 +51,9 @@ double get_base10_number(char* number, int base) { // returns double value of in
     for (int i = int_part_size + 1; i < number_len; i++) {  // increment result on float part
         result += get_value(number[i]) * pow(base, -(i - int_part_size));
     }
+    *res = result;
 
-    return result;
+    return res;
 }
 
 void convert_int_part(char* int_part_output, long long int_part, int base) {
