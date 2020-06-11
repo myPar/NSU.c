@@ -5,7 +5,11 @@
 
 // returns character hash
 int get_ch_hash(unsigned char ch, int ch_idx) {
-    return (int)((ch % 3) * (pow(3, ch_idx)));
+    int pow = 1;
+    for (int i = 0; i < ch_idx; i++) {
+        pow *= 3;
+    }
+    return (int)((ch % 3) * pow);
 }
 // recurrent calculating of current substring hash
 // uses the previous substring hash
@@ -17,20 +21,22 @@ int get_substring_hash(int prev_hash, unsigned char start_ch, unsigned char end_
 int main(int argc, char *argv[]) {
     FILE *input = NULL;
     char *input_file_name = NULL;
-    char source[128] = {0};
-    char template[20] = {0};
+#define buff_size 128
+#define temp_size 20
+    char source[buff_size] = {0};
+    char template[temp_size] = {0};
     int cur_source_bound_pos = 1;
 
     if (argc > 1) {
         if (argc != 2) {
             printf("incorrect number of arguments: \nshould be input.txt file name or no arguments");
-            exit(1);
+            return 1;
         }
         input_file_name = argv[1];
 
         if (!(input = fopen(input_file_name, "rt"))) {
             printf("can't open the file for reading");
-            exit(1);
+            return 1;
         }
     }
     else {
@@ -38,9 +44,9 @@ int main(int argc, char *argv[]) {
     }
     int template_hash = 0;
 
-    if (!fgets(template, 19, input)) {
+    if (!fgets(template, temp_size, input)) {
         printf("can't read a string\n");
-        exit(1);
+        return 1;
     }
     // cut '\n' from the template
     template[strlen(template) - 1] = '\0';
@@ -53,7 +59,7 @@ int main(int argc, char *argv[]) {
     printf("%d%s", template_hash, " ");
 
     while (!feof(input)) {
-        if (!fgets(source, 128, input)) {
+        if (!fgets(source, buff_size, input)) {
             break;
         }
         int source_length = (int) strlen(source);
@@ -89,3 +95,6 @@ int main(int argc, char *argv[]) {
     }
     return 0;
 }
+
+#undef buff_size
+#undef temp_size
