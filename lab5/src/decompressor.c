@@ -7,7 +7,10 @@
 void check_byte_update(char *byte, int *bit_pos, FILE *input) {
     if (*bit_pos > 7) {
         *bit_pos = 0;
-        fread(byte, 1, 1, input);
+        if (!fread(byte, 1, 1, input)) {
+            printf("reading error\n");
+            exit(1);
+        }
     }
 }
 
