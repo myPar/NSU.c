@@ -24,7 +24,10 @@ void write_header(FILE *f, archive_header *header) {
 }
 
 void read_header(FILE *f, archive_header *header) {
-    fread(header, 1, sizeof(archive_header), f);
+    if (!fread(header, 1, sizeof(archive_header), f)) {
+        printf("can't read header\n");
+        exit(1);
+    }
 }
 
 void print_header(archive_header *header) {

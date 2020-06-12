@@ -109,7 +109,10 @@ void decompress(FILE * input, FILE *output) {
     if (header.alphabet_size > 1) {
         char ch = 0;
         int bit_pos = 0;
-        fread(&ch, 1, 1, input);
+        if (!fread(&ch, 1, 1, input)) {
+            printf("read exception\n");
+            exit(1);
+        }
         Node *root = tree_restore(input, &ch, &bit_pos);
         //assert(root == NULL);
         decode_bytes(input, output, root, header.data_size);
@@ -117,9 +120,12 @@ void decompress(FILE * input, FILE *output) {
     }
     else {
         unsigned char ch = 0;
-        fread(&ch, 1, 1, input);
+        if (!fread(&ch, 1, 1, input)) {
+            printf("read exception\n");
+            exit(1);
+        }
 
-        for (unsigned i = 0; i < header.data_size; i++) {
+        for (int i = 0; i < header.data_size; i++) {
             fwrite(&ch, 1, 1, output);
         }
     }

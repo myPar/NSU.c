@@ -44,7 +44,7 @@ int get_count(FILE *input, int *count_array) {
     while(!feof(input)) {
         size_t buffer_size = fread(buffer, 1, max_size, input);
 
-        for (int i = 0; i < buffer_size; i++) {
+        for (int i = 0; i < (int) buffer_size; i++) {
             count_array[buffer[i]]++;
             count++;
         }
