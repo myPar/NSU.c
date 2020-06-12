@@ -4,10 +4,7 @@
 #include <stdint.h>
 #include <assert.h>
 #include "free_tree.h"
-
-void get_alphabet(FILE *input, char alphabet[256], size_t size) {
-    fread(alphabet, 1, size, input);
-}
+#include "debugging.h"
 
 void check_byte_update(char *byte, int *bit_pos, FILE *input) {
     if (*bit_pos > 7) {
@@ -16,34 +13,41 @@ void check_byte_update(char *byte, int *bit_pos, FILE *input) {
     }
 }
 
-Node* restore_tree(FILE *input, char *alphabet, int *idx, char *byte, int *bit_pos, int* has_leaf, int level) {
-    if ((byte[0] & (1 << *bit_pos)) == 0 && *has_leaf == -1) {
-        *has_leaf = 1;
-        idx[0]++;
+char read_character(FILE *input, char *byte, int *bit_pos) {
+    char result = 0;
+    // write next 8 bit in character byte
+
+    for (int i = 0; i < 8; i++) {
+        if ((byte[0] & (1 << bit_pos[0])) != 0) {
+            result |= (1 << i);
+        }
         bit_pos[0]++;
         check_byte_update(byte, bit_pos, input);
+    }
+    return result;
+}
 
-        Node *node = make_node(alphabet[*idx]);     // make leaf
+Node *tree_restore(FILE *input, char *byte, int *bit_pos) {
+    if ((byte[0] & (1 << bit_pos[0])) != 0) {
+        // restore node
+        Node *node = make_node(-1);
+        bit_pos[0]++;
+        check_byte_update(byte, bit_pos, input);
+        // restore left subtree
+        node->left = tree_restore(input, byte, bit_pos);
+        // restore right subtree
+        node->right = tree_restore(input, byte, bit_pos);
+        // return node
         return node;
     }
-    Node *node = make_node(-1);     // make node
-
-    if ((byte[0] & (1 << *bit_pos)) != 0) {
-        *has_leaf = -1;
-        bit_pos[0]++;
+    else {
+        bit_pos[0]++;                                   // read zero bit
         check_byte_update(byte, bit_pos, input);
-
-        node->left = restore_tree(input, alphabet, idx, byte, bit_pos, has_leaf, level + 1);
+        char ch = read_character(input, byte, bit_pos); // read character
+        Node *node = make_node(ch);
+        // return leaf
+        return node;
     }
-    *has_leaf = -1;
-    node->right = restore_tree(input, alphabet, idx, byte, bit_pos, has_leaf, level + 1);
-
-    if (level > 0) {
-        bit_pos[0]++;
-        check_byte_update(byte, bit_pos, input);
-    }
-
-    return node;
 }
 
 void decode_bytes(FILE *input, FILE *output, Node *root, int count) {
@@ -101,24 +105,15 @@ void decode_bytes(FILE *input, FILE *output, Node *root, int count) {
 }
 
 void decompress(FILE * input, FILE *output) {
-    //FILE *header_file = fopen("../../header_file", "rb");
     archive_header header = {0};
     read_header(input, &header);
 
     if (header.alphabet_size > 1) {
-        char alphabet[256];
-        get_alphabet(input, alphabet, header.alphabet_size);
-
-        int val, val2 = -1;
-        int *idx = &val;
-        int *has_leaf = &val2;
-        *idx = -1;
-
         char ch = 0;
         int bit_pos = 0;
         fread(&ch, 1, 1, input);
-        Node *root = restore_tree(input, alphabet, idx, &ch, &bit_pos, has_leaf, 0);
-
+        Node *root = tree_restore(input, &ch, &bit_pos);
+        //assert(root == NULL);
         decode_bytes(input, output, root, header.data_size);
         free_tree(root);
     }

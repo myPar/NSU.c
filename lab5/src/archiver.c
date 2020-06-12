@@ -2,6 +2,7 @@
 #include "structures.h"
 #include "free_tree.h"
 #include "util.h"
+#include "debugging.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -92,7 +93,6 @@ Node* build_tree(Queue *queue) {
 void get_code(FILE *output, Node *root, char code[257], int level, char *code_list[256]) {
     if (root->left == NULL) {    // leaf case
         code_list[root->value] = strcpy((char*)malloc(sizeof(char) * level + 1), code);
-        fputc(root->value, output);         // write alphabet in order of
     }
     else {
         code[level] = '0';
@@ -112,29 +112,31 @@ void check_bit(int *bit_pos, int *byte_pos, char *output_buffer) {
     }
 }
 
-void tree_write(FILE *output, Node *root, int level, char *output_buffer, int *byte_pos, int *bit_pos) {
+void write_tree(FILE *output, Node *root, char *output_buffer, int *byte_pos, int *bit_pos) {
     if (root->left == NULL) {
-        bit_pos[0] += 1;
+        // write leaf
+        (*bit_pos)++;
         check_bit(bit_pos, byte_pos, output_buffer);
+        // next 8 bits will current alphabet character's bits
+        unsigned char ch = (unsigned char) root->value;
+
+        for (int i = 0 ; i < 8; i++) {
+            if ((ch & (1 << i)) != 0) {
+                output_buffer[*byte_pos] |= (1 << *bit_pos);
+            }
+            (*bit_pos)++;
+            check_bit(bit_pos, byte_pos, output_buffer);
+        }
         return;
     }
-    // equal writing 'L'
+    // write node
     output_buffer[*byte_pos] |= (1 << *bit_pos);
-    bit_pos[0]++;
+    (*bit_pos)++;
     check_bit(bit_pos, byte_pos, output_buffer);
-    tree_write(output, root->left, level + 1, output_buffer, byte_pos, bit_pos);
-    // equal writing 'R'
-    tree_write(output, root->right, level + 1, output_buffer, byte_pos, bit_pos);
-    // write 'U' after traverse of right subtree
-    if (level > 0) {
-        bit_pos[0]++;
-        check_bit(bit_pos, byte_pos, output_buffer);
-    }
-    else {
-        assert(level == 0);
-        // write tree traverse in the output file
-        fwrite(output_buffer, 1, *byte_pos + 1, output);
-    }
+    // go to left sub tree
+    write_tree(output, root->left, output_buffer, byte_pos, bit_pos);
+    // go to right sub tree
+    write_tree(output, root->right, output_buffer, byte_pos, bit_pos);
 }
 
 void write_bytes(FILE* input, FILE *output, char *code_list[256]) {
@@ -178,61 +180,50 @@ void write_bytes(FILE* input, FILE *output, char *code_list[256]) {
     if (byte_pos >= 0) {     // add remaining buffer data to output file
         fwrite(output_buffer, 1,byte_pos + 1, output);    // write byte ot output file
     }
-
     free(input_buffer);
 #undef max_size
 }
+
+#define size 256
+#define size_ 257
+#define max_tree_size 500
 
 void archive(FILE *input, FILE *output) {
     unsigned char ch = 0;
     int alphabet_size = 0;
     int count;
-    int count_array[256] = {0};
+    int count_array[size] = {0};
     count = get_count(input, count_array);
 
-    for (int i = 0; i < 256; i++) {
+    for (int i = 0; i < size; i++) {
         if (count_array[i] > 0) {
             ch = i;
-               alphabet_size++;
+            alphabet_size++;
         }
     }
-    dbg(2, "archive(): count=%d, alphabet_size=%d", count, alphabet_size);
 
     if (alphabet_size > 1) {
         Queue *queue = build_queue(count_array);
         Node *root = build_tree(queue);
 
-        char *code_list[256] = {NULL};
-        char code[257];
+        char *code_list[size] = {NULL};
+        char code[size_];
         code[0] = '\0';
 
         archive_header header = {0};
-        write_header(output, &header);  // TODO: replace with set pos
-        fpos_t start_pos = get_cur_file_pos(output);
-        dbg(4, "header start_pos=%llu", start_pos);
-        fpos_t cur_pos;
+        write_header(output, &header);
 
         get_code(output, root, code, 0, code_list);
-        cur_pos = get_cur_file_pos(output);
-        dbg(4, "header pos after get_code: %llu", cur_pos);
-        header.alphabet_size = (size_t)(cur_pos - start_pos);
-        start_pos = cur_pos;
+        header.alphabet_size = (unsigned char) alphabet_size;
 
-        char tree_reverse_buffer[500] = {0};
+        char tree_reverse_buffer[max_tree_size] = {0};
         tree_reverse_buffer[0] = 0;     // init first buffer byte
         int byte_pos = 0;
         int bit_pos = 0;
-        tree_write(output, root, 0, tree_reverse_buffer, &byte_pos, &bit_pos);
-
-        cur_pos = get_cur_file_pos(output);
-        dbg(4, "header pos after tree_write: %llu", cur_pos);
-        header.tree_size = (size_t)(cur_pos - start_pos);
+        write_tree(output, root, tree_reverse_buffer, &byte_pos, &bit_pos);
+        fwrite(tree_reverse_buffer, 1, byte_pos + 1, output);
 
         fseek(input, 0, SEEK_SET);  // sets start position in input file
-#ifdef _DEBUG
-        cur_pos = get_cur_file_pos(input);
-        dbg(4, "input pos after fseek to 0: %llu", cur_pos);
-#endif
         write_bytes(input, output, code_list);
 
         header.data_size = count;
@@ -240,11 +231,14 @@ void archive(FILE *input, FILE *output) {
         fseek(output, 0, SEEK_SET);     // move file pointer to the beginning of file
         write_header(output, &header);
         free_tree(root);
-        dbg(1, "header { alph=%zu, tree=%zu, data=%zu }", header.alphabet_size, header.tree_size, header.data_size);
     }
     else {
-        archive_header header = {1, 0, count};
+        archive_header header = {1, count};
         write_header(output, &header);
         fwrite(&ch, 1, 1, output);
     }
 }
+
+#undef size
+#undef size_
+#undef max_tree_size

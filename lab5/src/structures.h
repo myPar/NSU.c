@@ -27,9 +27,8 @@ struct Linked_list {
 };
 
 typedef struct {
-    size_t alphabet_size;
-    size_t tree_size;
-    size_t data_size;
+    unsigned char alphabet_size;
+    int data_size;
 } archive_header;
 
 void write_header(FILE *f, archive_header *header);

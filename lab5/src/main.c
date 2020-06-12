@@ -89,7 +89,7 @@ void usage() {
 // correct reading of action format and line translation
 ToolAction read_action(FILE *input) {
     // determine action by the first line of the input stream
-    char ch;
+    unsigned char ch;
     ToolAction act = ACT_none;
     fread(&ch, 1, sizeof(ch), input); // read 'c' or 'd'
     check_errno("failed to read command");
@@ -127,9 +127,9 @@ FILE *read_to_file_and_reopen(FILE *input, const char *fname) {
     }
     char buffer[129];
     const size_t max_len = sizeof(buffer) - 1;
-    for (size_t n = fread(buffer, 1, max_len, input);
-         n != 0;
-         n = fread(buffer, 1, max_len, input))
+    size_t n;
+
+    while ((n = fread(buffer, 1, max_len, input)) != 0)
     {
         buffer[n] = '\0';
         dbg_print_string_hex(9, buffer); // added simple debug (forget it)

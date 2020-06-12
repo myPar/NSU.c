@@ -28,8 +28,8 @@ void read_header(FILE *f, archive_header *header) {
 }
 
 void print_header(archive_header *header) {
-    printf("header = (alphabet size: %zu , tree size: %zu , data size: %zu)\n",
-           header->alphabet_size, header->tree_size, header->data_size);
+    printf("header = (alphabet size: %zu , data size: %zu)\n",
+           header->alphabet_size, header->data_size);
 }
 
 fpos_t get_cur_file_pos(FILE *f) {
@@ -37,6 +37,7 @@ fpos_t get_cur_file_pos(FILE *f) {
 
     if (fgetpos(f, &pos) != 0) {
         printf("ERROR: fgetpos failed\n");
+        exit(1);
     }
     return pos;
 }
