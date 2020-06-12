@@ -28,10 +28,10 @@ void read_header(FILE *f, archive_header *header) {
 }
 
 void print_header(archive_header *header) {
-    printf("header = (alphabet size: %zu , data size: %zu)\n",
+    printf("header = (alphabet size: %u , data size: %d)\n",
            header->alphabet_size, header->data_size);
 }
-
+/*
 fpos_t get_cur_file_pos(FILE *f) {
     fpos_t pos = 0;
 
@@ -41,3 +41,4 @@ fpos_t get_cur_file_pos(FILE *f) {
     }
     return pos;
 }
+*/

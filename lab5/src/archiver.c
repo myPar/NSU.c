@@ -1,8 +1,5 @@
-#include "archiver.h"
 #include "structures.h"
 #include "free_tree.h"
-#include "util.h"
-#include "debugging.h"
 
 #include <stdio.h>
 #include <string.h>

@@ -2,9 +2,7 @@
 #include <stdlib.h>
 #include "structures.h"
 #include <stdint.h>
-#include <assert.h>
 #include "free_tree.h"
-#include "debugging.h"
 
 void check_byte_update(char *byte, int *bit_pos, FILE *input) {
     if (*bit_pos > 7) {

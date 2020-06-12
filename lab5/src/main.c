@@ -91,7 +91,10 @@ ToolAction read_action(FILE *input) {
     // determine action by the first line of the input stream
     unsigned char ch;
     ToolAction act = ACT_none;
-    fread(&ch, 1, sizeof(ch), input); // read 'c' or 'd'
+    if (!fread(&ch, 1, sizeof(ch), input)) {
+        printf("can't read a command");
+        exit(1);
+    }
     check_errno("failed to read command");
 
     switch (ch) {
@@ -109,9 +112,15 @@ ToolAction read_action(FILE *input) {
         fatal_error("invalid first line in the input");
     }
     // check there is a line terminator after the command
-    fread(&ch, 1, 1, input);
+    if (!fread(&ch, 1, 1, input)) {
+        printf("error reading\n");
+        exit(1);
+    }
     if (ch == '\r') {
-        fread(&ch, 1, 1, input);    // read next byte ('\n' - expected)
+        if (!fread(&ch, 1, 1, input)) {     // read next byte ('\n' - expected)
+            printf("error reading\n");
+            exit(1);
+        }
     }
     if (ch != '\n') {
         fatal_error("bad line terminator"); // expected - '\n'
