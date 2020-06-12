@@ -7,10 +7,7 @@
 void check_byte_update(char *byte, int *bit_pos, FILE *input) {
     if (*bit_pos > 7) {
         *bit_pos = 0;
-        if (!fread(byte, 1, 1, input)) {
-            printf("reading error\n");
-            exit(1);
-        }
+        fread(byte, 1, 1, input);
     }
 }
 
@@ -112,10 +109,7 @@ void decompress(FILE * input, FILE *output) {
     if (header.alphabet_size > 1) {
         char ch = 0;
         int bit_pos = 0;
-        if (!fread(&ch, 1, 1, input)) {
-            printf("read exception\n");
-            exit(1);
-        }
+        fread(&ch, 1, 1, input);
         Node *root = tree_restore(input, &ch, &bit_pos);
         //assert(root == NULL);
         decode_bytes(input, output, root, header.data_size);
@@ -123,12 +117,9 @@ void decompress(FILE * input, FILE *output) {
     }
     else {
         unsigned char ch = 0;
-        if (!fread(&ch, 1, 1, input)) {
-            printf("read exception\n");
-            exit(1);
-        }
+        fread(&ch, 1, 1, input);
 
-        for (int i = 0; i < header.data_size; i++) {
+        for (unsigned i = 0; i < header.data_size; i++) {
             fwrite(&ch, 1, 1, output);
         }
     }

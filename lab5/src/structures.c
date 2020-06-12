@@ -31,7 +31,7 @@ void read_header(FILE *f, archive_header *header) {
 }
 
 void print_header(archive_header *header) {
-    printf("header = (alphabet size: %u , data size: %d)\n",
+    printf("header = (alphabet size: %d , data size: %d)\n",
            header->alphabet_size, header->data_size);
 }
 /*

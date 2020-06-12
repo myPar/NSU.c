@@ -4,7 +4,6 @@
 #include "copy_file_data.h"
 
 #include <assert.h>
-#include <stdbool.h> // to enable bool type
 #include <stdio.h>
 #include <string.h>
 
@@ -38,7 +37,7 @@ const char* mode_to_str(ToolMode m) {
 #undef CASE
 
 #define CASE(x) case ACT_##x: return #x
-const char* act_to_str(ToolMode m) {
+const char* act_to_str(ToolAction m) {
     switch (m) {
         CASE(none);
         CASE(compress);
@@ -107,7 +106,7 @@ ToolAction read_action(FILE *input) {
         default:
             ; // error - handle it below
     }
-    if ((act == ACT_none)) {
+    if (act == ACT_none) {
         fclose(input);
         fatal_error("invalid first line in the input");
     }
@@ -217,7 +216,7 @@ int main(int argc, char *argv[]) {      // argc - size of input argv array
     }
     FILE *input = NULL, *output = NULL;
 
-    if (act != ACT_none && mode != MODE_debug) {
+    if (act != ACT_none) {
         // don't override debug mode, change only if it is not
         mode = MODE_normal; // -compressed/-decompress specified - normal mode
     }
