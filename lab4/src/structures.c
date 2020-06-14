@@ -3,20 +3,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-// gets string value of the 'Type' enum
-/*
-char *get_string_value(Type type) {
-    switch (type) {
-        case OPERATOR: return "OPERATOR";
-        case IDENT: return "IDENT";
-        case OPEN_PARENTHESIS: return "OPEN_PARENTHESIS";
-        case CLOSE_PARENTHESIS: return "CLOSE_PARENTHESIS";
-        default:
-            printf("unrecognized enum, should be 'Type' enum\n");
-            exit(1);
-    }
-}
-*/
 // structures constructors implementation
 Token *make_token(const char *value, Type type) {
     Token *token = (Token*) malloc(sizeof(Token));
@@ -63,7 +49,7 @@ Node *pop(List *list) {
 
     if (list->size <= 0) {
         printf("can't pop element, the list is empty\n");
-        exit(1);
+        abort();
     }
     if (list->size == 1) {
         list->tail = NULL;
@@ -110,7 +96,6 @@ int get_ident_size(const char *expression_string, int *idx) {
     }
     return ident_size;
 }
-#define value_size 20
 // returns token in case of success and NULL otherwise
 Token *get_token(const char *expression_string, int *idx) {
     char value_str[value_size] = {0};
@@ -161,7 +146,7 @@ int get_priority(Token *token) {
             return 1;
         default:
             printf("unrecognized operator\n");
-            exit(1);
+            abort();
     }
 }
 // itoa() doesn't recognized by compiler on gitlab
@@ -218,5 +203,3 @@ Node *calculate(Node *operator, Node *arg1, Node *arg2) {
 
     return make_node(node_token);
 }
-
-#undef value_size
