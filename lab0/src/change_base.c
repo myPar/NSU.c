@@ -2,7 +2,6 @@
 #include <math.h>
 #include <ctype.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 int get_value(char ch) {   // gets 10-base value of the number
     if (!isdigit(ch)) {
@@ -13,8 +12,8 @@ int get_value(char ch) {   // gets 10-base value of the number
     }
 }
 
-char get_number(int number) {
-    return (number <= 9) ? ((char)(number + '0')) : ((char)(number - 10 + 'a'));
+int get_number(int number) {
+    return number <= 9 ? number + '0' : number - 10 + 'a';
 }
 
 double *get_base10_number(char* number, int base, double *res) { // returns double value of input number //cut get10
@@ -34,13 +33,11 @@ double *get_base10_number(char* number, int base, double *res) { // returns doub
     }
     // int_part_size equals zero so we have no int part in number divided with '.'
     if (int_part_size == 0) {
-        free(number);
         printf("%s", "bad input");
         return NULL;
     }
     // we have one character after int part, so it can be only '.' and we have no fractal part
     if (int_part_size + 1 == number_len) {
-        free(number);
         printf("%s", "bad input");
         return NULL;
     }
@@ -65,19 +62,19 @@ void convert_int_part(char* int_part_output, long long int_part, int base) {
     }
     else {
         while (int_part > 0) {
-            int_part_output[i++] = get_number((int) (int_part % base));
+            int_part_output[i++] = (char) get_number((int) (int_part % base));
             int_part /= base;
         }
     }
     int_part_output[i] = 0;
 }
 
-void convert_fractal_part(char* fractal_part_output, double fractal_part, int base) {
+void convert_fractal_part(char* fractal_part_output, double fractal_part, int base, int digit_number) {
 
-    for (int i = 0; i < 13; i++) {
+    for (int i = 0; i < digit_number; i++) {
         double int_part;
         fractal_part = modf(fractal_part * base, &int_part);
-        char ch[2] = {get_number((int) int_part), 0};
+        char ch[2] = {(char) get_number((int) int_part), 0};
         strcat(fractal_part_output, ch);
     }
 }
@@ -92,7 +89,7 @@ void reverse_string(char* input_string) {
     }
 }
 
-void new_base_convert(char* output_number, double number, int base) {  // returns 10-base number, converted to input number base
+void new_base_convert(char* output_number, double number, int base, int digit_number) {  // returns 10-base number, converted to input number base
     double int_part,
             fractal_part = modf(number, &int_part);
 
@@ -101,6 +98,6 @@ void new_base_convert(char* output_number, double number, int base) {  // return
 
     if (fractal_part > 0) {
         strcat(output_number, ".");
-        convert_fractal_part(output_number, fractal_part, base);
+        convert_fractal_part(output_number, fractal_part, base, digit_number);
     }
 }
