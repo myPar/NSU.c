@@ -4,7 +4,7 @@
 #include "change_base.h"
 
 enum{size = 1024, digit_number = 13};
-static char* format = "%14s";
+static char* format = "%13s";
 
 int main() {
     int val1 = 0;
