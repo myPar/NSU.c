@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include "input.h"
@@ -10,9 +9,25 @@ void int_to_str(int i, char *result) {
     result[0] = ch;
     result[1] = '\0';
 }
-#define src_size 128
-#define que_size 10
-#define perm_size 11
+enum{src_size = 128, que_size = 10, perm_size = 11};
+
+int get_alphabet(int size, const char *input_str, int *queue) {
+    for (int i = 0; i < size; i++) {
+        int cur_int = input_str[i] - '0';
+
+        if (cur_int > 9 || cur_int < 0) {
+            // unexpected character in input string
+            return 1;
+        }
+        queue[cur_int]++;
+
+        if (queue[cur_int] > 1) {
+            // input string is not the permutation
+            return 1;
+        }
+    }
+    return 0;
+}
 
 void get_permutations(int queue[que_size], int queue_size, char *perm_str, int *perm_count,
         char *input_perm, bool *was_comparing) {
@@ -67,52 +82,33 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     char input_str[src_size] = {0};
-    char count_str[src_size] = {0};
     int queue[que_size] = {0};
 
-    int permutation_count = 0;
+    int permutation_count;
     char permutation_str[perm_size] = {0};
-#undef src_size
-#undef que_size
-#undef perm_size
     bool was_comparing = false;
 
     if (fgets(input_str, sizeof(input_str), input) == NULL) {
         printf("can't read the string\n");
         return 1;
     }
-    if (fgets(count_str, sizeof(count_str), input) == NULL) {
-        printf("can't read the string\n");
+    if (!scanf("%d", &permutation_count)) {
+        printf("can't read an integer value\n");
         return 1;
     }
     int ch_number = (int) strlen(input_str);
-    permutation_count = atoi(count_str);
 
     // cut '\n' in the end of the string
     input_str[ch_number - 1] = '\0';
     ch_number--;
 
     // get permutation "alphabet"
-    for (int i = 0; i < ch_number; i++) {
-        int cur_int = input_str[i] - '0';
-
-        if (cur_int > 9 || cur_int < 0) {
-            // unexpected character in input string
-            printf("bad input");
-            return 0;
-        }
-        queue[cur_int]++;
-
-        if (queue[cur_int] > 1) {
-            // input string is not the permutation
-            printf("bad input");
-            return 0;
-        }
+    if (get_alphabet(ch_number, input_str, queue)) {
+        printf("bad input");
+        return 0;
     }
     get_permutations(queue, ch_number, permutation_str, &permutation_count, input_str, &was_comparing);
+    unset_input(input);
 
-    if (input != stdin) {
-        fclose(input);
-    }
     return 0;
 }
