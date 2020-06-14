@@ -20,3 +20,9 @@ FILE *set_input(int argc, char *argv[]) {
     }
     return input;
 }
+
+void unset_input(FILE *input) {
+    if (input != stdin) {
+        fclose(input);
+    }
+}
