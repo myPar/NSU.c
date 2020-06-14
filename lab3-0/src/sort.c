@@ -34,7 +34,4 @@ void quick_sort(int *input_array, int left_idx, int right_idx) {
         quick_sort(input_array, left_idx, middle_idx);
         quick_sort(input_array, middle_idx + 1, right_idx);
     }
-    else {
-        return;
-    }
 }
