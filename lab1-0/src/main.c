@@ -2,10 +2,9 @@
 #include <string.h>
 #include "input.h"
 
+enum{temp_size = 20, src_size = 128, range = 256};
+
 int main(int argc, char *argv[]) {
-#define temp_size 20
-#define src_size 128
-#define range 256
     char template[temp_size] = {0};
     char source[src_size] = {0};
     int offset_arr[range] = {0};
@@ -66,12 +65,7 @@ int main(int argc, char *argv[]) {
             cur_text_pos += offset;
         }
     }
-#undef temp_size
-#undef src_size
-#undef range
+    unset_input(input);
 
-    if (input != stdin) {
-        fclose(input);
-    }
     return 0;
 }
