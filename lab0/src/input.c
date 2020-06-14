@@ -33,7 +33,7 @@ bool is_correct_number(int number_base, char number[]) {
     return true;
 }
 
-int get_input(int *arg1_pointer, int *arg2_pointer, char* arg3_pointer) {
+int get_input(int *arg1_pointer, int *arg2_pointer, char* arg3_pointer, char *format) {
     int start_base = 0, end_base = 0;
 
     if (!scanf("%d%d", &start_base, &end_base)) {
@@ -45,7 +45,7 @@ int get_input(int *arg1_pointer, int *arg2_pointer, char* arg3_pointer) {
         return -1;
     }
 
-    if (!scanf("%s", arg3_pointer)) {
+    if (!scanf(format, arg3_pointer)) {
         printf("can't read a string value\n");
         return 1;
     }

@@ -4,16 +4,17 @@
 #include "change_base.h"
 
 enum{size = 1024, digit_number = 13};
+static char* format = "%14s";
 
 int main() {
     int val1 = 0;
     int val2 = 0;
     char *input_number = (char*) malloc(sizeof(char) * (digit_number + 1));
-    int result = get_input(&val1, &val2, input_number);
+    int result = get_input(&val1, &val2, input_number, format);
 
     if (result == -1) {
         printf("%s", "bad input");
-        return 0;
+        result = 0;
     }
     else if (result == 0){
         double input_number_10;
