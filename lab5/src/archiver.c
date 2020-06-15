@@ -213,6 +213,7 @@ void archive(FILE *input, FILE *output) {
             write_bytes(input, output, code_list);
         }
 
+        free_code_list(code_list);
         free_tree(root);
     }
 }
