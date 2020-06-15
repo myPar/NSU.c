@@ -246,7 +246,7 @@ int main(int argc, char *argv[]) {      // argc - size of input argv array
         }
         break;
     default:
-        assert(false && "bad mode");
+        fprintf(stderr, "bad mode\n");
     }
 
     dbg(1, "action=%s, mode=%s", act_to_str(act), mode_to_str(mode));

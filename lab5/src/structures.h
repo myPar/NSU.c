@@ -25,14 +25,4 @@ typedef struct Linked_list Queue;
 struct Linked_list {
     Element *head;
 };
-
-typedef struct {
-    short alphabet_size;
-    int data_size;
-} archive_header;
-
-void write_header(FILE *f, archive_header *header);
-void read_header(FILE *f, archive_header *header);
-void print_header(archive_header *header);
-fpos_t get_cur_file_pos(FILE *f);
 #endif //LAB_HAFFMAN_STRUCTURES_H

@@ -106,29 +106,29 @@ void decode_bytes(FILE *input, FILE *output, Node *root, int count) {
 }
 
 void decompress(FILE * input, FILE *output) {
-    archive_header header = {0};
-    read_header(input, &header);
+    int data_size;
 
-    if (header.alphabet_size > 1) {
-        char ch = 0;
-        int bit_pos = 0;
-        if (!fread(&ch, 1, 1, input)) {
-            printf("reading error\n");
-            exit(1);
-        }
-        Node *root = tree_restore(input, &ch, &bit_pos);
-        //assert(root == NULL);
-        decode_bytes(input, output, root, header.data_size);
-        free_tree(root);
+    if (!fread(&data_size, sizeof(int), 1, input)) {
+        exit(0);    // input data is empty
+    }
+    char cur_byte = 0;
+    int bit_pos = 0;
+
+    if (!fread(&cur_byte, 1, 1, input)) {
+        printf("reading error\n");
+        exit(1);
+    }
+    Node *root = tree_restore(input, &cur_byte, &bit_pos);
+
+    if (root->left != NULL) {
+        decode_bytes(input, output, root, data_size);
     }
     else {
-        unsigned char ch = 0;
-        if (!fread(&ch, 1, 1, input)) {
-            printf("reading error\n");
-            exit(1);
-        }
-        for (int i = 0; i < header.data_size; i++) {
+        unsigned char ch = (unsigned char) root->value;
+
+        for (int i = 0; i < data_size; i++) {
             fwrite(&ch, 1, 1, output);
         }
     }
+    free_tree(root);
 }

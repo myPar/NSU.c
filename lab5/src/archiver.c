@@ -186,32 +186,20 @@ void write_bytes(FILE* input, FILE *output, char *code_list[256]) {
 #define max_tree_size 500
 
 void archive(FILE *input, FILE *output) {
-    unsigned char ch = 0;
-    int alphabet_size = 0;
     int count;
     int count_array[size] = {0};
     count = get_count(input, count_array);
 
-    for (int i = 0; i < size; i++) {
-        if (count_array[i] > 0) {
-            ch = i;
-            alphabet_size++;
-        }
-    }
+    if (count > 0) {
+        fwrite(&count, sizeof(int), 1, output);
 
-    if (alphabet_size > 1) {
         Queue *queue = build_queue(count_array);
         Node *root = build_tree(queue);
 
         char *code_list[size] = {NULL};
         char code[size_];
         code[0] = '\0';
-
-        archive_header header = {0};
-        write_header(output, &header);
-
         get_code(output, root, code, 0, code_list);
-        header.alphabet_size = (unsigned char) alphabet_size;
 
         char tree_reverse_buffer[max_tree_size] = {0};
         tree_reverse_buffer[0] = 0;     // init first buffer byte
@@ -220,19 +208,13 @@ void archive(FILE *input, FILE *output) {
         write_tree(output, root, tree_reverse_buffer, &byte_pos, &bit_pos);
         fwrite(tree_reverse_buffer, 1, byte_pos + 1, output);
 
-        fseek(input, 0, SEEK_SET);  // sets start position in input file
-        write_bytes(input, output, code_list);
+        if (root->left != NULL) {
+            fseek(input, 0, SEEK_SET);  // sets start position in input file
+            write_bytes(input, output, code_list);
+        }
 
-        header.data_size = count;
-        // write header
-        fseek(output, 0, SEEK_SET);     // move file pointer to the beginning of file
-        write_header(output, &header);
+        free_code_list(code_list);
         free_tree(root);
-    }
-    else {
-        archive_header header = {1, count};
-        write_header(output, &header);
-        fwrite(&ch, 1, 1, output);
     }
 }
 
