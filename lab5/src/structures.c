@@ -18,30 +18,3 @@ Node* make_node(int val) {
 
     return node;
 }
-
-void write_header(FILE *f, archive_header *header) {
-    fwrite(header, 1, sizeof(archive_header), f);
-}
-
-void read_header(FILE *f, archive_header *header) {
-    if (!fread(header, 1, sizeof(archive_header), f)) {
-        printf("can't read header\n");
-        exit(1);
-    }
-}
-
-void print_header(archive_header *header) {
-    printf("header = (alphabet size: %d , data size: %d)\n",
-           header->alphabet_size, header->data_size);
-}
-/*
-fpos_t get_cur_file_pos(FILE *f) {
-    fpos_t pos = 0;
-
-    if (fgetpos(f, &pos) != 0) {
-        printf("ERROR: fgetpos failed\n");
-        exit(1);
-    }
-    return pos;
-}
-*/
