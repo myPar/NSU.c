@@ -3,24 +3,29 @@
 #include "input.h"
 #include "sort.h"
 
-#define GET_INT(x)                  \
-    if (!fscanf(input, "%d", x)) {  \
-        printf("can't write data"); \
-        exit(1);                    \
+int get_int(int *val, FILE *input) {
+    if (!fscanf(input, "%d", val)) {
+        printf("can't write data\n");
+        unset_input(input);
+        return 1;
     }
+    return 0;
+}
 
 int main(int argc, char *argv[]) {
     FILE *input;
+    if ((input = set_input(argc, argv)) == NULL) {return 1;}
 
-    if ((input = set_input(argc, argv)) == NULL) {
-        return 1;
-    }
     int array_size;
-    GET_INT(&array_size)
+    if (get_int(&array_size, input)) {return 1;}
+
     int *input_array = (int*) malloc(sizeof(int) * array_size);
 
     for (int i = 0; i < array_size; i++) {
-        GET_INT(&(input_array[i]))
+        if (get_int(&input_array[i], input)) {
+            free(input_array);
+            return 1;
+        }
     }
     quick_sort(input_array, 0, array_size - 1);
 
@@ -28,11 +33,7 @@ int main(int argc, char *argv[]) {
         printf("%d%s", input_array[i], " ");
     }
     free(input_array);
+    unset_input(input);
 
-    if (input != stdin) {
-        fclose(input);
-    }
     return 0;
 }
-
-#undef GET_INT
