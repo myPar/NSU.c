@@ -1,4 +1,2 @@
-#ifndef HEAP_SORT_SORT_H
-#define HEAP_SORT_SORT_H
+#pragma once
 void heap_sort(int *input_array, int array_size);
-#endif
