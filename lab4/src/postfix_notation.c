@@ -1,16 +1,14 @@
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include "structures.h"
 
-#define EXIT()                      \
-    printf("syntax error");         \
-    free_list(operation_stack);     \
-    free_list(output_stack);        \
-    free_list(input_list);          \
-    free(token_list);               \
-    return NULL;
+void free_lists(List *arg1, List *arg2, List *arg3, Token **arg4) {
+    free_list(arg1);
+    free_list(arg2);
+    free_list(arg3);
+    free(arg4);
+}
 
 List *build_notation(List *input_list, Token **token_list) {
     List *output_stack = make_list();
@@ -59,7 +57,8 @@ List *build_notation(List *input_list, Token **token_list) {
                 }
                 if (!is_complete) {
                     // disturbed parenthesis balance
-                    EXIT()
+                    free_lists(input_list, operation_stack, output_stack, token_list);
+                    return NULL;
                 }
                 // free memory from unused node
                 free_node(cur_node);
@@ -68,7 +67,8 @@ List *build_notation(List *input_list, Token **token_list) {
     }
     if (parenthesis_count != 0) {
         // disturbed parenthesis balance
-        EXIT()
+        free_lists(input_list, operation_stack, output_stack, token_list);
+        return NULL;
     }
     if (operation_stack->size > 0) {
         // add remaining data in the output stack
@@ -85,8 +85,6 @@ List *build_notation(List *input_list, Token **token_list) {
     return output_stack;
 }
 
-#undef EXIT
-
 Node *get_operator_pointer(List *notation) {
     Node *cur_node = notation->head;
 
@@ -99,7 +97,7 @@ Node *get_operator_pointer(List *notation) {
 // input expression has the correct infix syntax
 // so we just have to calculate an expression without
 // exception checking (besides division by zero checking)
-int *calculate_notation(List *postfix_notation, Token **token_list, int *res_pointer) {
+int calculate_notation(List *postfix_notation, Token **token_list, int *res_pointer) {
 
     while (postfix_notation->size > 1) {
         Node *operator = get_operator_pointer(postfix_notation);
@@ -108,10 +106,9 @@ int *calculate_notation(List *postfix_notation, Token **token_list, int *res_poi
         Node *result = calculate(operator, operand1, operand2);
 
         if (result == NULL) {
-            printf("division by zero");
             free_list(postfix_notation);
             free(token_list);
-            return NULL;
+            return 1;
         }
         // change pointers
         if (operand1->prev != NULL) {
@@ -142,5 +139,5 @@ int *calculate_notation(List *postfix_notation, Token **token_list, int *res_poi
     free(token_list);
 
     *res_pointer = res;
-    return res_pointer;
+    return 0;
 }
