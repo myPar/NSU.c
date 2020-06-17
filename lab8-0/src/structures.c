@@ -42,8 +42,8 @@ Heap *make_heap() {
     assert(heap != NULL);
     heap->array = (Edge**) malloc(sizeof(Edge*));
     assert(heap->array != NULL);
-    heap->memory_size = 1;
     heap->size = 0;
+    heap->memory_size = 1;
 
     return heap;
 }
@@ -106,10 +106,8 @@ void sifting_down(Heap *heap) {
 // inserts new edge in the heap
 void insert_edge(Edge *edge, Heap *heap) {
     heap->array[heap->size] = edge;
-    heap->size++;
-
     if (heap->size >= heap->memory_size) {
-        (heap->memory_size)++;
+        heap->memory_size++;
         Edge **result = (Edge**) realloc(heap->array, sizeof(Edge*) * heap->memory_size);
 
         if (result == NULL) {
@@ -118,6 +116,7 @@ void insert_edge(Edge *edge, Heap *heap) {
         }
         heap->array = result;
     }
+    heap->size++;
     sifting_up(heap);
 }
 
@@ -132,15 +131,6 @@ Edge *pop_edge(Heap *heap) {
     if (heap->size > 1) {
         sifting_down(heap);
     }
-    heap->memory_size--;
-    Edge **result = (Edge**) realloc(heap->array, sizeof(Edge*) * heap->memory_size);
-
-    if (result == NULL) {
-        printf("realloc error\n");
-        exit(1);
-    }
-    heap->array = result;
-
     // return removed element
     return root;
 }
