@@ -8,18 +8,18 @@ int get_ch_hash(unsigned char ch, int ch_idx) {
     for (int i = 0; i < ch_idx; i++) {
         pow *= 3;
     }
-    return (ch % 3) * pow;
+    return (int)((ch % 3) * pow);
 }
 // recurrent calculating of current substring hash
 // uses the previous substring hash
 int get_substring_hash(int prev_hash, unsigned char start_ch, unsigned char end_ch, int template_length) {
-    return (prev_hash - get_ch_hash(start_ch, 0)) / 3 +
+    return (int)((prev_hash - get_ch_hash(start_ch, 0)) / 3) +
     get_ch_hash(end_ch,  template_length - 1);
 }
 
-enum{buff_size = 128, temp_size = 20};
-
 int main(int argc, char *argv[]) {
+#define buff_size 128
+#define temp_size 20
     char source[buff_size] = {0};
     char template[temp_size] = {0};
     int cur_source_bound_pos = 1;
@@ -78,7 +78,11 @@ int main(int argc, char *argv[]) {
         // increment left bound position of current source string in the text
         cur_source_bound_pos += source_length;
     }
-    unset_input(input);
+#undef buff_size
+#undef temp_size
 
+    if (input != stdin) {
+        fclose(input);
+    }
     return 0;
 }
