@@ -10,7 +10,7 @@ struct GraphEdge {
 typedef struct PriorityQueue Heap;
 struct PriorityQueue {
     Edge **array;
-    size_t size;
+    int size;
 };
 
 int **make_matrix(int size);
