@@ -1,4 +1,6 @@
 #pragma once
+#ifndef POSTFIX_NOTATION_STRUCTURES_H
+#define POSTFIX_NOTATION_STRUCTURES_H
 enum{value_size = 20};
 // enum of possible token type
 typedef enum {
@@ -50,3 +52,4 @@ void push(List *list, Node *paste_node);
 Node *pop(List *list);
 // free memory
 void free_list(List *list);
+#endif
