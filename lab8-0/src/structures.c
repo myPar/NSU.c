@@ -53,15 +53,15 @@ void free_heap(Heap *heap) {
     free(heap);
 }
 // heap methods:
-void swap(Heap *heap, size_t idx1, size_t idx2) {
+void swap(Heap *heap, int idx1, int idx2) {
     Edge *edge = heap->array[idx1];
     heap->array[idx1] = heap->array[idx2];
     heap->array[idx2] = edge;
 }
 
 void sifting_up(Heap *heap) {
-    size_t cur_idx = heap->size - 1;
-    size_t paren_idx;
+    int cur_idx = heap->size - 1;
+    int paren_idx;
 
     while (cur_idx > 0) {
         paren_idx = cur_idx / 2;
@@ -78,10 +78,10 @@ void sifting_up(Heap *heap) {
 }
 // dipping root down to the heap
 void sifting_down(Heap *heap) {
-    size_t cur_idx = 0;
-    size_t min_idx;
-    size_t child1_idx;
-    size_t child2_idx;
+    int cur_idx = 0;
+    int min_idx;
+    int child1_idx;
+    int child2_idx;
     // while element has child
     while (cur_idx < heap->size / 2) {
         child1_idx = cur_idx * 2 + 1;
