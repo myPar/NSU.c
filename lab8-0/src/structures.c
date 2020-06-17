@@ -106,6 +106,8 @@ void sifting_down(Heap *heap) {
 // inserts new edge in the heap
 void insert_edge(Edge *edge, Heap *heap) {
     heap->array[heap->size] = edge;
+    heap->size++;
+
     if (heap->size >= heap->memory_size) {
         heap->memory_size++;
         Edge **result = (Edge**) realloc(heap->array, sizeof(Edge*) * heap->memory_size);
@@ -116,7 +118,6 @@ void insert_edge(Edge *edge, Heap *heap) {
         }
         heap->array = result;
     }
-    heap->size++;
     sifting_up(heap);
 }
 
