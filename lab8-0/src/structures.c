@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 #include "structures.h"
 
@@ -36,12 +37,14 @@ Edge *make_Edge(short start_vertex, short end_vertex, int length) {
     return edge;
 }
 // heap constructor
-Heap *make_heap(int memory_size) {
+Heap *make_heap() {
     Heap *heap = (Heap*) malloc(sizeof(Heap));
     assert(heap != NULL);
-    heap->array = (Edge**) malloc(sizeof(Edge*) * memory_size);
+    heap->array = (Edge**) malloc(sizeof(Edge*));
     assert(heap->array != NULL);
+    heap->memory_size = 1;
     heap->size = 0;
+
     return heap;
 }
 // free heap memory
@@ -61,10 +64,9 @@ void swap(Heap *heap, int idx1, int idx2) {
 
 void sifting_up(Heap *heap) {
     int cur_idx = heap->size - 1;
-    int paren_idx;
 
     while (cur_idx > 0) {
-        paren_idx = cur_idx / 2;
+        int paren_idx = cur_idx / 2;
 
         if (heap->array[paren_idx]->size > heap->array[cur_idx]->size) {
             // swap
@@ -79,13 +81,11 @@ void sifting_up(Heap *heap) {
 // dipping root down to the heap
 void sifting_down(Heap *heap) {
     int cur_idx = 0;
-    int min_idx;
-    int child1_idx;
-    int child2_idx;
     // while element has child
     while (cur_idx < heap->size / 2) {
-        child1_idx = cur_idx * 2 + 1;
-        child2_idx = cur_idx * 2 + 2;
+        int min_idx;
+        int child1_idx = cur_idx * 2 + 1;
+        int child2_idx = cur_idx * 2 + 2;
         // get index of minimum child
         if (child2_idx < heap->size && heap->array[child2_idx]->size < heap->array[child1_idx]->size) {
             min_idx = child2_idx;
@@ -107,6 +107,17 @@ void sifting_down(Heap *heap) {
 void insert_edge(Edge *edge, Heap *heap) {
     heap->array[heap->size] = edge;
     heap->size++;
+
+    if (heap->size >= heap->memory_size) {
+        (heap->memory_size)++;
+        Edge **result = (Edge**) realloc(heap->array, sizeof(Edge*) * heap->memory_size);
+
+        if (result == NULL) {
+            printf("realloc error\n");
+            exit(1);
+        }
+        heap->array = result;
+    }
     sifting_up(heap);
 }
 
@@ -121,6 +132,15 @@ Edge *pop_edge(Heap *heap) {
     if (heap->size > 1) {
         sifting_down(heap);
     }
+    heap->memory_size--;
+    Edge **result = (Edge**) realloc(heap->array, sizeof(Edge*) * heap->memory_size);
+
+    if (result == NULL) {
+        printf("realloc error\n");
+        exit(1);
+    }
+    heap->array = result;
+
     // return removed element
     return root;
 }
