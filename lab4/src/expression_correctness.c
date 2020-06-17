@@ -2,11 +2,11 @@
 
 int check_operator_open_parenthesis(Token **token_list, int cur_idx) {
     Token *next_token = token_list[cur_idx + 1];
-    return (next_token->type != OPEN_PARENTHESIS && next_token->type != IDENT) ? 1 : 0;
+    return next_token->type != OPEN_PARENTHESIS && next_token->type != IDENT;
 }
 int check_ident_close_parenthesis(Token **token_list, int cur_idx) {
     Token *next_token = token_list[cur_idx + 1];
-    return (next_token->type != CLOSE_PARENTHESIS && next_token->type != OPERATOR) ? 1 : 0;
+    return next_token->type != CLOSE_PARENTHESIS && next_token->type != OPERATOR;
 }
 // check the correctness of input expression
 // based on infix expression notation syntax
