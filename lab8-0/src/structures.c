@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <stdio.h>
 #include <assert.h>
 #include "structures.h"
 
@@ -37,13 +36,12 @@ Edge *make_Edge(short start_vertex, short end_vertex, int length) {
     return edge;
 }
 // heap constructor
-Heap *make_heap() {
+Heap *make_heap(int size) {
     Heap *heap = (Heap*) malloc(sizeof(Heap));
     assert(heap != NULL);
-    heap->array = (Edge**) malloc(sizeof(Edge*));
+    heap->array = (Edge**) malloc(sizeof(Edge*) * size);
     assert(heap->array != NULL);
     heap->size = 0;
-    heap->memory_size = 1;
 
     return heap;
 }
@@ -107,17 +105,6 @@ void sifting_down(Heap *heap) {
 void insert_edge(Edge *edge, Heap *heap) {
     heap->array[heap->size] = edge;
     heap->size++;
-
-    if (heap->size >= heap->memory_size) {
-        heap->memory_size++;
-        Edge **result = (Edge**) realloc(heap->array, sizeof(Edge*) * heap->memory_size);
-
-        if (result == NULL) {
-            printf("realloc error\n");
-            exit(1);
-        }
-        heap->array = result;
-    }
     sifting_up(heap);
 }
 
