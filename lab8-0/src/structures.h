@@ -13,9 +13,10 @@ struct PriorityQueue {
     size_t size;
 };
 
-void init_Edge(short start_vertex, short end_vertex, int length, Edge *edge);
-void swap_edge(Edge *edge);
-void free_adjacency_list(int **adjacency_list, int size);
+int **make_matrix(int size);
+void free_matrix(int **matrix, int size);
+
+Edge *make_Edge(short start_vertex, short end_vertex, int length);
 
 Heap *make_heap(int memory_size);
 void free_heap(Heap *heap);

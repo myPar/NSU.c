@@ -1,32 +1,54 @@
 #include <stdlib.h>
+#include <assert.h>
 #include "structures.h"
+
+/// matrix constructor, returns initialized by -1 for each element matrix
+int **make_matrix(int size) {
+    int **matrix = (int**) malloc(sizeof(int*) * size);
+
+    for (int i = 0; i < size; i++) {
+        matrix[i] = (int*) malloc(sizeof(int) * size);
+    }
+    // init matrix
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            matrix[i][j] = -1;
+        }
+    }
+    return matrix;
+}
+
+/// free dynamic memory from the matrix
+void free_matrix(int **matrix, int size) {
+    for (int i = 0 ; i < size; i++) {
+        free(matrix[i]);
+    }
+    free(matrix);
+}
+
 // edge initialization
-void init_Edge(short start_vertex, short end_vertex, int length, Edge *edge) {
+Edge *make_Edge(short start_vertex, short end_vertex, int length) {
+    Edge *edge = (Edge*) malloc(sizeof(Edge));
     edge->start_vertex = start_vertex;
     edge->end_vertex = end_vertex;
     edge->size = length;
-}
-void swap_edge(Edge *edge) {
-    short copy = edge->start_vertex;
-    edge->start_vertex = edge->end_vertex;
-    edge->end_vertex = copy;
-}
-void free_adjacency_list(int **adjacency_list, int size) {
-    for (int i = 0; i < size; i++) {
-        free(adjacency_list[i]);
-    }
-    free(adjacency_list);
-}
 
+    return edge;
+}
 // heap constructor
 Heap *make_heap(int memory_size) {
     Heap *heap = (Heap*) malloc(sizeof(Heap));
+    assert(heap != NULL);
     heap->array = (Edge**) malloc(sizeof(Edge*) * memory_size);
+    assert(heap->array != NULL);
     heap->size = 0;
     return heap;
 }
 // free heap memory
 void free_heap(Heap *heap) {
+    for (int i = 0; i < heap->size; i++) {
+        free(heap->array[i]);
+    }
     free(heap->array);
     free(heap);
 }
