@@ -1,76 +1,69 @@
-#include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
+#include <stdio.h>
 #include "structures.h"
 
-#define EXIT()                                              \
-    free_heap(queue);                                       \
-    free_matrix(matrix, vertex_number);                     \
-    exit(0);
-
-Edge *get_min_edge(Heap *heap, char *marked_array) {
-    Edge *edge = NULL;
-    // while heap not empty
-    while (heap->size > 0) {
-        edge = pop_edge(heap);
-        // check edge for loop in graph
-        if (!marked_array[edge->end_vertex]) {
-            break;
-        }
-        free(edge);
-    }
-    return edge;
-}
-enum {max_vertex_number = 5000};
-
-void bfs(int **matrix, int vertex_number, int edge_number) {
-    // each frame vertex has NEW unused end vertex so
-    // the frame size <= vertices number
-    Edge *answer[max_vertex_number];
-    char marked_array[max_vertex_number];
-
-    Heap *queue = make_heap(edge_number);
-    short marked_count = 1; // start vertex is already marked
-
-    short cur_vertex = 0;
-    int cur_idx = -1;
+int pop_min(unsigned int *distance_array, int *marked_array, int vertex_number) {
+    unsigned int min = (unsigned int) INT_MAX + 1;
+    int vertex = -1;
 
     for (int i = 0; i < vertex_number; i++) {
+        if (distance_array[i] < min && !marked_array[i]) {
+            min = distance_array[i];
+            vertex = i;
+        }
+    }
+    return vertex;
+}
+
+#define EXIT()                             \
+    free_matrix(matrix, vertex_number);    \
+    free(distance_array);                  \
+    free(parent_array);                    \
+    free(marked_array);                    \
+    free(answer);                          \
+    exit(0);
+
+void bfs(int **matrix, int vertex_number) {
+    unsigned int *distance_array = (unsigned int*) malloc(sizeof(int) * vertex_number);
+    int *parent_array = (int*) malloc(sizeof(int) * vertex_number);
+    int *marked_array = (int*) malloc(sizeof(int) * vertex_number);
+    Edge *answer = (Edge*) malloc(sizeof(Edge) * (vertex_number - 1));
+
+    int marked_count = 0;
+
+    for (int i = 0; i < vertex_number; i++) {
+        distance_array[i] = (unsigned int) INT_MAX + 1;
+        parent_array[i] = -1;
         marked_array[i] = 0;
     }
-    marked_array[0] = 1;
+    distance_array[0] = 0;
+    int cur_vertex = 0;
 
-    while (marked_count < vertex_number) {
+    while (marked_count < vertex_number - 1) {
 
         for (int i = 0; i < vertex_number; i++) {
-            int length = matrix[cur_vertex][i];
+            int weight = matrix[cur_vertex][i];
 
-            if (length != -1) {
-                if (!marked_array[i]) {
-                    Edge *edge = make_Edge(cur_vertex, (short) i, length);
-                    // if vertex isn't in the frame
-                    insert_edge(edge, queue);
+            if (weight != -1) {
+                if (!marked_array[i] && (unsigned int) weight < distance_array[i]) {
+                    distance_array[i] = weight;
+                    parent_array[i] = cur_vertex;
                 }
             }
         }
-        cur_idx++;
-        // add not included to the frame edge
-        answer[cur_idx] = get_min_edge(queue, marked_array);
+        marked_array[cur_vertex] = 1;
 
-        if (answer[cur_idx] == NULL) {
+        if ((cur_vertex = pop_min(distance_array, marked_array, vertex_number)) == -1) {
             printf("no spanning tree");
             EXIT()
         }
-        // change current vertex
-        cur_vertex = answer[cur_idx]->end_vertex;
+        answer[marked_count].end_vertex = (short) (cur_vertex + 1);
+        answer[marked_count].start_vertex = (short) (parent_array[cur_vertex] + 1);
         marked_count++;
-        marked_array[cur_vertex] = 1;
     }
-    // print frame
-    for (int i = 0; i < cur_idx + 1; i++) {
-        printf("%d %d\n", answer[i]->start_vertex + 1, answer[i]->end_vertex + 1);
-        free(answer[i]);
+    for (int i = 0; i < vertex_number - 1; i++) {
+        printf("%d %d\n", answer[i].start_vertex, answer[i].end_vertex);
     }
     EXIT()
 }
-
-#undef EXIT
