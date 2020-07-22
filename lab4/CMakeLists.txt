@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(lab4 C)
 
-set(SRC src/main.c)
+set(SRC src/main.c src/expression_correctness.c src/input.c src/postfix_notation.c src/structures.c src/structures.h)
 
 add_executable(${PROJECT_NAME} ${SRC})
 
